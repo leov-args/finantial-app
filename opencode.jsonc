@@ -1,0 +1,33 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Per-skill gating for this project only. Global packs stay installed
+  // (~/.config/opencode) and are simply not offered here.
+  //
+  // The reasoning, so these do not outlive it:
+  //
+  //   * This project already owns its spec-driven process. CLAUDE.md makes
+  //     docs/spec-rediseno.md the source of truth for "next step" and for the
+  //     user's approved gates, and docs/intent/rediseno.md the confirmed intent.
+  //   * agent-skills' spec-driven-development would generate a competing PRD
+  //     and bypass that Spanish gate table, so it is denied outright.
+  //   * The planning trio would duplicate tasks/plan.md and tasks/todo.md, so
+  //     they ask instead of silently forking the plan. "ask" degrades
+  //     gracefully: Superpowers flows that call writing-plans mid-chain still
+  //     work, they just check with you first. "deny" would hard-fail there.
+  //   * constraint-driven-development would write a CONSTRAINTS.md that
+  //     competes with the "## Constraints" section already in CLAUDE.md.
+  //
+  // Deliberately NOT gated: test-driven-development and
+  // verification-before-completion. This repo has a real suite (vitest,
+  // testing-library, fake-indexeddb) behind `npm run check`, so those two earn
+  // their cost. Note the project is not yet a git repo, so the git-workflow
+  // skills will mostly idle until it is.
+  "permissions": [
+    { "action": "skill", "resource": "spec-driven-development", "effect": "deny" },
+
+    { "action": "skill", "resource": "writing-plans", "effect": "ask" },
+    { "action": "skill", "resource": "planning-and-task-breakdown", "effect": "ask" },
+    { "action": "skill", "resource": "constraint-driven-development", "effect": "ask" }
+  ]
+}

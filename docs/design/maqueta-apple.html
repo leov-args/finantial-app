@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejemplo · Estilo Apple</title>
+<style>
+  :root {
+    --bg: #f2f2f7; --card: #ffffff; --label: #000000; --label-2: rgba(60,60,67,.6); --label-3: rgba(60,60,67,.3);
+    --sep: rgba(60,60,67,.18); --fill: rgba(120,120,128,.12);
+    --blue: #007aff; --green: #34c759; --red: #ff3b30;
+    --ana: #007aff; --par: #ff2d55;
+    --bar: rgba(249,249,249,.78);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000; --card: #1c1c1e; --label: #ffffff; --label-2: rgba(235,235,245,.6); --label-3: rgba(235,235,245,.3);
+      --sep: rgba(84,84,88,.6); --fill: rgba(120,120,128,.24);
+      --blue: #0a84ff; --green: #30d158; --red: #ff453a; --ana: #0a84ff; --par: #ff375f;
+      --bar: rgba(30,30,30,.78);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font: 17px/1.3 -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text", Roboto, sans-serif; background: #8e8e93; color: var(--label); font-variant-numeric: tabular-nums; }
+  .note { text-align: center; color: #fff; font-size: 13px; padding: 16px 16px 0; }
+  .stage { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; padding: 20px 16px 24px; }
+  .cap { font-size: 12px; color: #fff; text-align: center; margin-top: 8px; }
+
+  /* ── phone ── */
+  .phone { width: 375px; height: 780px; background: var(--bg); border-radius: 44px; overflow: hidden; position: relative; box-shadow: 0 30px 70px rgba(0,0,0,.35); }
+  .scroll { position: absolute; inset: 0; overflow: auto; padding: 54px 16px 170px; scrollbar-width: none; }
+  .large { font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; margin: 6px 4px 2px; }
+  .sub { font-size: 15px; color: var(--label-2); margin: 0 4px 18px; }
+  .sec { font-size: 13px; color: var(--label-2); text-transform: uppercase; letter-spacing: .02em; margin: 22px 16px 7px; }
+  .foot { font-size: 13px; color: var(--label-2); margin: 7px 16px 0; }
+  .group { background: var(--card); border-radius: 12px; overflow: hidden; }
+  .row { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 11px 16px; position: relative; }
+  .row + .row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: .5px; background: var(--sep); }
+  .row.ind + .row.ind::before { left: 60px; }
+  .row .t { flex: 1; min-width: 0; }
+  .row .t small { display: block; font-size: 13px; color: var(--label-2); margin-top: 2px; }
+  .row .v { font-weight: 400; color: var(--label); }
+  .row .v.m { color: var(--label-2); }
+  .tap { cursor: pointer; transition: background 80ms; }
+  .tap:active { background: var(--fill); }
+  .chev::after { content: "›"; color: var(--label-3); font-size: 22px; margin-left: 6px; line-height: 1; }
+  .dot { width: 32px; height: 32px; border-radius: 50%; flex: none; display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: 600; }
+  .ana { background: var(--ana); } .par { background: var(--par); }
+  .split { width: 32px; height: 32px; border-radius: 50%; flex: none; background: conic-gradient(var(--ana) 0 87%, var(--par) 87% 100%); }
+  .amt { font-size: 28px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
+  .v, .row small { white-space: nowrap; }
+  .badge { font-size: 12px; font-weight: 600; color: var(--blue); background: color-mix(in srgb, var(--blue) 14%, transparent); padding: 2px 7px; border-radius: 6px; margin-left: 6px; vertical-align: 2px; }
+  .ok { display: inline-flex; align-items: center; gap: 5px; color: var(--green); font-weight: 600; }
+  .add { color: var(--blue); }
+
+  details.calc summary { list-style: none; }
+  details.calc summary::-webkit-details-marker { display: none; }
+  details.calc summary .chev::after { display: inline-block; transition: transform 250ms cubic-bezier(.2,.8,.2,1); }
+  details.calc[open] summary .chev::after { transform: rotate(90deg); }
+  .math { padding: 4px 16px 14px; font-size: 15px; }
+  .math .l { display: flex; justify-content: space-between; padding: 5px 0; color: var(--label-2); }
+  .math .l { gap: 12px; }
+  .math .l b { color: var(--label); font-weight: 500; white-space: nowrap; }
+  .math .eq { border-top: .5px solid var(--sep); margin-top: 4px; padding-top: 9px; }
+  .math .eq b { font-weight: 700; }
+  .math h4 { margin: 14px 0 2px; font-size: 13px; font-weight: 600; color: var(--label); display: flex; align-items: center; gap: 7px; }
+  .math h4 i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  /* hero personal */
+  .hero { background: var(--card); border-radius: 16px; padding: 18px 16px 16px; }
+  .hero small { color: var(--label-2); font-size: 15px; }
+  .hero .big { font-size: 56px; font-weight: 700; letter-spacing: -.03em; line-height: 1.05; margin: 4px 0 14px; color: var(--green); }
+  .meter { height: 10px; border-radius: 5px; background: var(--fill); overflow: hidden; display: flex; }
+  .meter i { display: block; height: 100%; }
+  .legend { display: flex; justify-content: space-between; font-size: 13px; color: var(--label-2); margin-top: 8px; }
+  .catbar { flex: 1; }
+  .catbar div { height: 6px; border-radius: 3px; background: var(--fill); margin-top: 6px; }
+  .catbar div i { display: block; height: 100%; border-radius: 3px; background: var(--blue); width: var(--w); }
+  .months { display: flex; align-items: stretch; gap: 10px; height: 140px; padding: 16px; }
+  .mo { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; font-size: 12px; color: var(--label-2); }
+  .mo i { width: 100%; max-width: 30px; height: calc(var(--h) * .78); border-radius: 6px; background: var(--fill); }
+  .mo.now i { background: var(--blue); } .mo.now { color: var(--label); font-weight: 600; }
+
+  /* chrome: translucent capture + tab bar */
+  .chrome { position: absolute; left: 0; right: 0; bottom: 0; background: var(--bar); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-top: .5px solid var(--sep); padding: 8px 12px 26px; }
+  .cap-in { display: flex; align-items: center; gap: 8px; background: var(--fill); border-radius: 18px; padding: 4px 4px 4px 14px; }
+  .cap-in input { flex: 1; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--label); min-width: 0; padding: 6px 0; }
+  .cap-in input::placeholder { color: var(--label-2); }
+  .cap-in button { width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--blue); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 100ms ease-out; }
+  .cap-in button:active { transform: scale(.92); }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 8px; }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 500; color: var(--label-2); }
+  .tab svg { width: 26px; height: 26px; }
+  .tab.on { color: var(--blue); }
+
+
+  /* ajustes: selector de color */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 0; padding: 16px 8px; }
+  .sw { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: var(--label-2); background: none; border: 0; font-family: inherit; cursor: pointer; }
+  .sw i { width: 40px; height: 40px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--card), 0 0 0 5px transparent; transition: transform 100ms ease-out, box-shadow 150ms; }
+  .sw:active i { transform: scale(.92); }
+  .sw[aria-checked="true"] i { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--c); }
+  .sw[aria-checked="true"] { color: var(--label); font-weight: 600; }
+  .sw:disabled { cursor: not-allowed; opacity: .35; }
+
+  /* ── desktop ── */
+  .desk { width: min(1100px, 100%); height: 640px; background: var(--bg); border-radius: 12px; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,.35); display: grid; grid-template-columns: 220px 1fr; }
+  .side { background: color-mix(in srgb, var(--card) 70%, var(--bg)); border-right: .5px solid var(--sep); padding: 18px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .side .brand { font-size: 13px; color: var(--label-2); padding: 4px 10px 14px; }
+  .side a { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; color: var(--label); text-decoration: none; font-size: 14px; }
+  .side a svg { width: 18px; height: 18px; color: var(--blue); }
+  .side a.on { background: var(--fill); font-weight: 600; }
+  .side .spacer { flex: 1; }
+  .side .cap-in { margin: 0 2px; }
+  .side .cap-in input { font-size: 14px; }
+  .main { overflow: auto; padding: 28px 36px; }
+  .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
+</style>
+</head>
+<body>
+<p class="note">Estilo Apple · ejemplo con tus datos. Prueba a tocar «Cómo se calcula». Se adapta a modo oscuro.</p>
+<div class="stage">
+
+  <!-- FAMILIAR (móvil) -->
+  <div>
+    <div class="phone">
+      <div class="scroll">
+        <div class="large">Familiar</div>
+        <p class="sub">Octubre · plan del hogar</p>
+
+        <div class="sec">Este mes transferís</div>
+        <div class="group">
+          <div class="row ind"><span class="dot ana">A</span><span class="t">Ana<small>Se queda con 949,99 €</small></span><span class="amt">1.950,01 €</span></div>
+          <div class="row ind"><span class="dot par">P</span><span class="t">Pareja<small>Se queda con 950,00 €</small></span><span class="amt">500,00 €</span></div>
+          <details class="calc">
+            <summary class="row tap"><span class="t add">Cómo se calcula</span><span class="chev"></span></summary>
+            <div class="math">
+              <div class="l"><span>Ingresos de los dos</span><b>4.000,00 €</b></div>
+              <div class="l"><span>Gastos comunes a repartir</span><b>− 2.100,01 €</b></div>
+              <div class="l eq"><span>Queda para los dos</span><b>1.899,99 €</b></div>
+              <div class="l"><span>Cada uno se queda con la mitad</span><b>949,99 € · 950,00 €</b></div>
+              <h4><i class="ana"></i>Ana</h4>
+              <div class="l"><span>2.600,00 − 949,99 + 300,00 Portátil</span><b>1.950,01 €</b></div>
+              <h4><i class="par"></i>Pareja</h4>
+              <div class="l"><span>1.400,00 − 950,00 + 50,00 Portátil</span><b>500,00 €</b></div>
+            </div>
+          </details>
+        </div>
+        <p class="foot"><span class="ok">✓ Cuadra</span> 1.950,01 + 500,00 = 2.450,01 €, el total del plan.</p>
+
+        <div class="sec">Plan del hogar · 2.450,01 €</div>
+        <div class="group">
+          <div class="row tap"><span class="t">Alquiler</span><span class="v">900,00 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t">Comida</span><span class="v">520,00 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t">Colegio</span><span class="v">350,00 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t">Portátil<span class="badge">Asignado</span><small>Ana 300 · Pareja 50</small></span><span class="v">350,00 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t">Seguro</span><span class="v">195,01 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t">Luz</span><span class="v">60,00 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t">Internet</span><span class="v">45,00 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t">Agua</span><span class="v">30,00 €</span><span class="chev"></span></div>
+          <div class="row tap"><span class="t add">Añadir gasto común</span></div>
+        </div>
+      </div>
+      <div class="chrome">
+        <div class="cap-in"><input placeholder="Apunta un gasto: «gasto 12 comida»"><button aria-label="Enviar">↑</button></div>
+        <nav class="tabs">
+          <span class="tab"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z"/></svg>Personal</span>
+          <span class="tab on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Familiar</span>
+          <span class="tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.5 7.5 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.3 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>Ajustes</span>
+        </nav>
+      </div>
+    </div>
+    <p class="cap">Familiar · móvil</p>
+  </div>
+
+  <!-- PERSONAL (móvil) -->
+  <div>
+    <div class="phone">
+      <div class="scroll">
+        <div class="large">Personal</div>
+        <p class="sub">Ana · octubre</p>
+        <div class="hero">
+          <small>Este mes vas a ahorrar</small>
+          <div class="big">467,59 €</div>
+          <div class="meter"><i style="width:84.7%;background:var(--label-3)"></i><i style="width:6.1%;background:var(--blue)"></i><i style="width:9.2%;background:var(--green)"></i></div>
+          <div class="legend"><span>Hogar 1.950,01</span><span>Gastado 182,40</span><span>Ahorro 467,59</span></div>
+        </div>
+
+        <div class="sec">Las cuentas del mes</div>
+        <div class="group">
+          <div class="row"><span class="t">Ingreso</span><span class="v">2.600,00 €</span></div>
+          <div class="row"><span class="t">Aporte al hogar</span><span class="v m">− 1.950,01 €</span></div>
+          <div class="row"><span class="t">Gastado hasta hoy</span><span class="v m">− 182,40 €</span></div>
+        </div>
+
+        <div class="sec">En qué se fue</div>
+        <div class="group">
+          <div class="row tap"><span class="catbar">Comer fuera<div><i style="--w:100%"></i></div></span><span class="v">64,20 €</span></div>
+          <div class="row tap"><span class="catbar">Transporte<div><i style="--w:75%"></i></div></span><span class="v">48,00 €</span></div>
+          <div class="row tap"><span class="catbar">Ocio<div><i style="--w:64%"></i></div></span><span class="v">41,30 €</span></div>
+          <div class="row tap"><span class="catbar">Suscripciones<div><i style="--w:45%"></i></div></span><span class="v">28,90 €</span></div>
+        </div>
+
+        <div class="sec">Últimos 6 meses</div>
+        <div class="group months">
+          <div class="mo"><i style="--h:78%"></i>may</div><div class="mo"><i style="--h:70%"></i>jun</div><div class="mo"><i style="--h:100%"></i>jul</div>
+          <div class="mo"><i style="--h:57%"></i>ago</div><div class="mo"><i style="--h:66%"></i>sep</div><div class="mo now"><i style="--h:35%"></i>oct</div>
+        </div>
+      </div>
+      <div class="chrome">
+        <div class="cap-in"><input placeholder="Apunta un gasto: «gasto 12 comida»"><button aria-label="Enviar">↑</button></div>
+        <nav class="tabs">
+          <span class="tab on"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z"/></svg>Personal</span>
+          <span class="tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Familiar</span>
+          <span class="tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.5 7.5 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.3 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>Ajustes</span>
+        </nav>
+      </div>
+    </div>
+    <p class="cap">Personal · móvil</p>
+  </div>
+
+  <!-- AJUSTES (móvil) -->
+  <div>
+    <div class="phone">
+      <div class="scroll">
+        <div class="large">Ajustes</div>
+        <p class="sub">Hogar y miembros</p>
+        <div class="sec">Miembros</div>
+        <div class="group">
+          <div class="row ind tap"><span class="dot ana">A</span><span class="t">Ana<small>Ingreso 2.600,00 € · tú en este dispositivo</small></span><span class="chev"></span></div>
+          <div class="row ind tap"><span class="dot par">P</span><span class="t">Pareja<small>Ingreso 1.400,00 €</small></span><span class="chev"></span></div>
+        </div>
+        <div class="sec">Tu color · Ana</div>
+        <div class="group" role="radiogroup" aria-label="Color de Ana">
+          <div class="swatches" id="swatches"></div>
+        </div>
+        <p class="foot">Te representa en los aportes, el cálculo y los gráficos. Los colores ya elegidos por otro miembro no se pueden repetir. El verde y el rojo no aparecen porque la app los usa para «ahorro» y «error».</p>
+      </div>
+      <div class="chrome">
+        <div class="cap-in"><input placeholder="Apunta un gasto: «gasto 12 comida»"><button aria-label="Enviar">↑</button></div>
+        <nav class="tabs">
+          <span class="tab"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z"/></svg>Personal</span>
+          <span class="tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Familiar</span>
+          <span class="tab on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.5 7.5 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.3 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>Ajustes</span>
+        </nav>
+      </div>
+    </div>
+    <p class="cap">Ajustes · elegir tu color (pruébalo)</p>
+  </div>
+</div>
+
+<!-- FAMILIAR (escritorio) -->
+<div class="stage">
+  <div>
+    <div class="desk">
+      <aside class="side">
+        <div class="brand">Family Finance</div>
+        <a href="#"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z"/></svg>Personal</a>
+        <a href="#" class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Familiar</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2"/></svg>Ajustes</a>
+        <div class="spacer"></div>
+        <div class="cap-in"><input placeholder="gasto 12 comida"><button aria-label="Enviar">↑</button></div>
+      </aside>
+      <section class="main">
+        <div class="large">Familiar</div>
+        <p class="sub">Octubre · plan del hogar</p>
+        <div class="cols">
+          <div>
+            <div class="sec">Plan del hogar · 2.450,01 €</div>
+            <div class="group">
+              <div class="row tap"><span class="t">Alquiler</span><span class="v">900,00 €</span></div>
+              <div class="row tap"><span class="t">Comida</span><span class="v">520,00 €</span></div>
+              <div class="row tap"><span class="t">Colegio</span><span class="v">350,00 €</span></div>
+              <div class="row tap"><span class="t">Portátil<span class="badge">Asignado</span><small>Ana 300 · Pareja 50</small></span><span class="v">350,00 €</span></div>
+              <div class="row tap"><span class="t">Seguro</span><span class="v">195,01 €</span></div>
+              <div class="row tap"><span class="t">Luz</span><span class="v">60,00 €</span></div>
+              <div class="row tap"><span class="t">Internet</span><span class="v">45,00 €</span></div>
+              <div class="row tap"><span class="t">Agua</span><span class="v">30,00 €</span></div>
+              <div class="row tap"><span class="t add">Añadir gasto común</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="sec">Este mes transferís</div>
+            <div class="group">
+              <div class="row ind"><span class="dot ana">A</span><span class="t">Ana<small>Se queda con 949,99 €</small></span><span class="amt">1.950,01 €</span></div>
+              <div class="row ind"><span class="dot par">P</span><span class="t">Pareja<small>Se queda con 950,00 €</small></span><span class="amt">500,00 €</span></div>
+            </div>
+            <p class="foot"><span class="ok">✓ Cuadra</span> con el total del plan.</p>
+            <div class="sec">Cómo se calcula</div>
+            <div class="group math" style="padding-top:10px">
+              <div class="l"><span>Ingresos de los dos</span><b>4.000,00 €</b></div>
+              <div class="l"><span>Gastos comunes a repartir</span><b>− 2.100,01 €</b></div>
+              <div class="l eq"><span>Queda para los dos</span><b>1.899,99 €</b></div>
+              <div class="l"><span>Cada uno se queda con la mitad</span><b>949,99 € · 950,00 €</b></div>
+              <h4><i class="ana"></i>Ana</h4>
+              <div class="l"><span>2.600,00 − 949,99 + 300,00 Portátil</span><b>1.950,01 €</b></div>
+              <h4><i class="par"></i>Pareja</h4>
+              <div class="l"><span>1.400,00 − 950,00 + 50,00 Portátil</span><b>500,00 €</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <p class="cap">Familiar · escritorio</p>
+  </div>
+</div>
+
+<script>
+  // Paleta de miembros: colores del sistema de Apple sin verde ni rojo (reservados).
+  const palette = [
+    ['Azul', '#007aff', '#0a84ff'], ['Índigo', '#5856d6', '#5e5ce6'], ['Morado', '#af52de', '#bf5af2'], ['Rosa', '#ff2d55', '#ff375f'],
+    ['Naranja', '#ff9500', '#ff9f0a'], ['Turquesa', '#30b0c7', '#40c8e0'], ['Menta', '#00c7be', '#63e6e2'], ['Marrón', '#a2845e', '#ac8e68'],
+  ];
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  let mine = 'Azul'; const partner = 'Rosa';
+  const box = document.getElementById('swatches');
+  function render() {
+    box.innerHTML = '';
+    for (const [name, light, dk] of palette) {
+      const b = document.createElement('button');
+      b.className = 'sw'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(name === mine));
+      b.disabled = name === partner;
+      b.style.setProperty('--c', dark ? dk : light);
+      b.innerHTML = '<i></i>' + name + (name === partner ? ' · Pareja' : '');
+      b.onclick = () => { mine = name; document.documentElement.style.setProperty('--ana', dark ? dk : light); render(); };
+      box.appendChild(b);
+    }
+  }
+  render();
+</script>
+</body>
+</html>

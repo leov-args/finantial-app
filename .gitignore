@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+*.local
+.env
+.env.*
+.DS_Store
+playwright-report
+test-results
+.impeccable/hook.cache.json
+.impeccable/questions/

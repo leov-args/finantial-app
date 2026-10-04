@@ -1,0 +1,576 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-04T13:43:21.698Z",
+  "title": "Design System: Family Finance",
+  "extensions": {
+    "colorMeta": {
+      "system-blue": {
+        "role": "primary",
+        "displayName": "Azul del sistema (AA)",
+        "cssVar": "--accent",
+        "dark": "#0a84ff",
+        "tonalRamp": [
+          "oklch(15% 0.177 255.8)",
+          "oklch(25% 0.177 255.8)",
+          "oklch(35% 0.177 255.8)",
+          "oklch(45% 0.177 255.8)",
+          "oklch(55% 0.177 255.8)",
+          "oklch(70% 0.177 255.8)",
+          "oklch(85% 0.177 255.8)",
+          "oklch(95% 0.030 255.8)"
+        ]
+      },
+      "on-accent": {
+        "role": "primary",
+        "displayName": "Texto sobre acento",
+        "cssVar": "--on-accent",
+        "dark": "#000000",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(25% 0.000 89.9)",
+          "oklch(35% 0.000 89.9)",
+          "oklch(45% 0.000 89.9)",
+          "oklch(55% 0.000 89.9)",
+          "oklch(70% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "system-green": {
+        "role": "status",
+        "displayName": "Verde del sistema",
+        "cssVar": "--positive",
+        "dark": "#30d158",
+        "tonalRamp": [
+          "oklch(15% 0.146 147.5)",
+          "oklch(25% 0.146 147.5)",
+          "oklch(35% 0.146 147.5)",
+          "oklch(45% 0.146 147.5)",
+          "oklch(55% 0.146 147.5)",
+          "oklch(70% 0.146 147.5)",
+          "oklch(85% 0.146 147.5)",
+          "oklch(95% 0.030 147.5)"
+        ]
+      },
+      "system-red": {
+        "role": "status",
+        "displayName": "Rojo del sistema",
+        "cssVar": "--negative",
+        "dark": "#ff453a",
+        "tonalRamp": [
+          "oklch(15% 0.225 27.3)",
+          "oklch(25% 0.225 27.3)",
+          "oklch(35% 0.225 27.3)",
+          "oklch(45% 0.225 27.3)",
+          "oklch(55% 0.225 27.3)",
+          "oklch(70% 0.225 27.3)",
+          "oklch(85% 0.225 27.3)",
+          "oklch(95% 0.030 27.3)"
+        ]
+      },
+      "grouped-background": {
+        "role": "neutral",
+        "displayName": "Fondo agrupado",
+        "cssVar": "--bg",
+        "dark": "#000000",
+        "tonalRamp": [
+          "oklch(15% 0.007 286.3)",
+          "oklch(25% 0.007 286.3)",
+          "oklch(35% 0.007 286.3)",
+          "oklch(45% 0.007 286.3)",
+          "oklch(55% 0.007 286.3)",
+          "oklch(70% 0.007 286.3)",
+          "oklch(85% 0.007 286.3)",
+          "oklch(95% 0.007 286.3)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Superficie",
+        "cssVar": "--surface",
+        "dark": "#1c1c1e",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(25% 0.000 89.9)",
+          "oklch(35% 0.000 89.9)",
+          "oklch(45% 0.000 89.9)",
+          "oklch(55% 0.000 89.9)",
+          "oklch(70% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "fill-secondary": {
+        "role": "neutral",
+        "displayName": "Relleno secundario",
+        "cssVar": "--surface-secondary",
+        "dark": "rgba(120, 120, 128, 0.24)",
+        "tonalRamp": [
+          "oklch(15% 0.012 286.0)",
+          "oklch(25% 0.012 286.0)",
+          "oklch(35% 0.012 286.0)",
+          "oklch(45% 0.012 286.0)",
+          "oklch(55% 0.012 286.0)",
+          "oklch(70% 0.012 286.0)",
+          "oklch(85% 0.012 286.0)",
+          "oklch(95% 0.012 286.0)"
+        ]
+      },
+      "label": {
+        "role": "neutral",
+        "displayName": "Etiqueta",
+        "cssVar": "--text",
+        "dark": "#f2f2f7",
+        "tonalRamp": [
+          "oklch(15% 0.004 286.1)",
+          "oklch(25% 0.004 286.1)",
+          "oklch(35% 0.004 286.1)",
+          "oklch(45% 0.004 286.1)",
+          "oklch(55% 0.004 286.1)",
+          "oklch(70% 0.004 286.1)",
+          "oklch(85% 0.004 286.1)",
+          "oklch(95% 0.004 286.1)"
+        ]
+      },
+      "secondary-label": {
+        "role": "neutral",
+        "displayName": "Etiqueta secundaria",
+        "cssVar": "--muted",
+        "dark": "rgba(235, 235, 245, 0.6)",
+        "tonalRamp": [
+          "oklch(15% 0.006 286.2)",
+          "oklch(25% 0.006 286.2)",
+          "oklch(35% 0.006 286.2)",
+          "oklch(45% 0.006 286.2)",
+          "oklch(55% 0.006 286.2)",
+          "oklch(70% 0.006 286.2)",
+          "oklch(85% 0.006 286.2)",
+          "oklch(95% 0.006 286.2)"
+        ]
+      },
+      "separator": {
+        "role": "neutral",
+        "displayName": "Separador",
+        "cssVar": "--border",
+        "dark": "rgba(84, 84, 88, 0.6)",
+        "tonalRamp": [
+          "oklch(15% 0.012 285.8)",
+          "oklch(25% 0.012 285.8)",
+          "oklch(35% 0.012 285.8)",
+          "oklch(45% 0.012 285.8)",
+          "oklch(55% 0.012 285.8)",
+          "oklch(70% 0.012 285.8)",
+          "oklch(85% 0.012 285.8)",
+          "oklch(95% 0.012 285.8)"
+        ]
+      },
+      "bar-material": {
+        "role": "neutral",
+        "displayName": "Material de barra",
+        "cssVar": "--bar",
+        "dark": "rgba(30, 30, 30, 0.78)",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(25% 0.000 89.9)",
+          "oklch(35% 0.000 89.9)",
+          "oklch(45% 0.000 89.9)",
+          "oklch(55% 0.000 89.9)",
+          "oklch(70% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "member-blue": {
+        "role": "tertiary",
+        "displayName": "Miembro azul",
+        "cssVar": "--member-blue",
+        "dark": "#0a84ff",
+        "tonalRamp": [
+          "oklch(15% 0.218 257.4)",
+          "oklch(25% 0.218 257.4)",
+          "oklch(35% 0.218 257.4)",
+          "oklch(45% 0.218 257.4)",
+          "oklch(55% 0.218 257.4)",
+          "oklch(70% 0.218 257.4)",
+          "oklch(85% 0.218 257.4)",
+          "oklch(95% 0.030 257.4)"
+        ]
+      },
+      "member-indigo": {
+        "role": "tertiary",
+        "displayName": "Miembro índigo",
+        "cssVar": "--member-indigo",
+        "dark": "#5e5ce6",
+        "tonalRamp": [
+          "oklch(15% 0.191 278.3)",
+          "oklch(25% 0.191 278.3)",
+          "oklch(35% 0.191 278.3)",
+          "oklch(45% 0.191 278.3)",
+          "oklch(55% 0.191 278.3)",
+          "oklch(70% 0.191 278.3)",
+          "oklch(85% 0.191 278.3)",
+          "oklch(95% 0.030 278.3)"
+        ]
+      },
+      "member-purple": {
+        "role": "tertiary",
+        "displayName": "Miembro morado",
+        "cssVar": "--member-purple",
+        "dark": "#bf5af2",
+        "tonalRamp": [
+          "oklch(15% 0.213 312.4)",
+          "oklch(25% 0.213 312.4)",
+          "oklch(35% 0.213 312.4)",
+          "oklch(45% 0.213 312.4)",
+          "oklch(55% 0.213 312.4)",
+          "oklch(70% 0.213 312.4)",
+          "oklch(85% 0.213 312.4)",
+          "oklch(95% 0.030 312.4)"
+        ]
+      },
+      "member-pink": {
+        "role": "tertiary",
+        "displayName": "Miembro rosa",
+        "cssVar": "--member-pink",
+        "dark": "#ff375f",
+        "tonalRamp": [
+          "oklch(15% 0.238 17.9)",
+          "oklch(25% 0.238 17.9)",
+          "oklch(35% 0.238 17.9)",
+          "oklch(45% 0.238 17.9)",
+          "oklch(55% 0.238 17.9)",
+          "oklch(70% 0.238 17.9)",
+          "oklch(85% 0.238 17.9)",
+          "oklch(95% 0.030 17.9)"
+        ]
+      },
+      "member-orange": {
+        "role": "tertiary",
+        "displayName": "Miembro naranja",
+        "cssVar": "--member-orange",
+        "dark": "#ff9f0a",
+        "tonalRamp": [
+          "oklch(15% 0.175 62.6)",
+          "oklch(25% 0.175 62.6)",
+          "oklch(35% 0.175 62.6)",
+          "oklch(45% 0.175 62.6)",
+          "oklch(55% 0.175 62.6)",
+          "oklch(70% 0.175 62.6)",
+          "oklch(85% 0.175 62.6)",
+          "oklch(95% 0.030 62.6)"
+        ]
+      },
+      "member-teal": {
+        "role": "tertiary",
+        "displayName": "Miembro turquesa",
+        "cssVar": "--member-teal",
+        "dark": "#64d2ff",
+        "tonalRamp": [
+          "oklch(15% 0.122 230.8)",
+          "oklch(25% 0.122 230.8)",
+          "oklch(35% 0.122 230.8)",
+          "oklch(45% 0.122 230.8)",
+          "oklch(55% 0.122 230.8)",
+          "oklch(70% 0.122 230.8)",
+          "oklch(85% 0.122 230.8)",
+          "oklch(95% 0.030 230.8)"
+        ]
+      },
+      "member-mint": {
+        "role": "tertiary",
+        "displayName": "Miembro menta",
+        "cssVar": "--member-mint",
+        "dark": "#63e6e2",
+        "tonalRamp": [
+          "oklch(15% 0.130 189.0)",
+          "oklch(25% 0.130 189.0)",
+          "oklch(35% 0.130 189.0)",
+          "oklch(45% 0.130 189.0)",
+          "oklch(55% 0.130 189.0)",
+          "oklch(70% 0.130 189.0)",
+          "oklch(85% 0.130 189.0)",
+          "oklch(95% 0.030 189.0)"
+        ]
+      },
+      "member-brown": {
+        "role": "tertiary",
+        "displayName": "Miembro marrón",
+        "cssVar": "--member-brown",
+        "dark": "#ac8e68",
+        "tonalRamp": [
+          "oklch(15% 0.064 72.8)",
+          "oklch(25% 0.064 72.8)",
+          "oklch(35% 0.064 72.8)",
+          "oklch(45% 0.064 72.8)",
+          "oklch(55% 0.064 72.8)",
+          "oklch(70% 0.064 72.8)",
+          "oklch(85% 0.064 72.8)",
+          "oklch(95% 0.030 72.8)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "large-title": {
+        "displayName": "Large title",
+        "purpose": "Título de cada sección y de los estados vacíos."
+      },
+      "hero-figure": {
+        "displayName": "Hero figure",
+        "purpose": "La cifra de ahorro del mes; una por pantalla."
+      },
+      "app-title": {
+        "displayName": "App title",
+        "purpose": "Nombre de la app en cabecera o rail."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de tarjeta, mes y hoja."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Filas, valores y campos (16px mínimo en campos)."
+      },
+      "subheadline": {
+        "displayName": "Subheadline",
+        "purpose": "Importes secundarios, avisos y etiquetas de campo."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Leyendas, meses del histórico, metadatos de captura."
+      },
+      "tab-label": {
+        "displayName": "Tab label",
+        "purpose": "Etiquetas de la barra de pestañas móvil."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-rest",
+        "value": "0 0.1rem 0.4rem rgba(0,0,0,0.04)",
+        "purpose": "Todas las tarjetas; casi invisible."
+      },
+      {
+        "name": "floating-bar",
+        "value": "0 0.5rem 1.5rem rgba(0,0,0,0.12)",
+        "purpose": "Barra de captura flotante en móvil."
+      },
+      {
+        "name": "selection-ring",
+        "value": "0 0 0 0.18rem var(--surface), 0 0 0 0.3rem var(--member-color)",
+        "purpose": "Swatch de color seleccionado."
+      },
+      {
+        "name": "sheet-backdrop",
+        "value": "rgba(0, 0, 0, 0.32)",
+        "purpose": "Velo ::backdrop de las hojas."
+      }
+    ],
+    "materials": [
+      {
+        "name": "bar-material",
+        "value": "background: var(--bar); backdrop-filter: blur(20px) saturate(180%)",
+        "purpose": "Pestañas y captura móvil; opaco con prefers-reduced-transparency."
+      },
+      {
+        "name": "rail-material",
+        "value": "color-mix(in srgb, var(--surface) 70%, var(--bg))",
+        "purpose": "Rail lateral de escritorio."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Curva de todas las transiciones CSS y del fundido de hojas."
+      },
+      {
+        "name": "press",
+        "value": "transform scale(0.97), 120ms ease-out",
+        "purpose": "Pulsación de botón en :active; con movimiento reducido, opacidad 0.6."
+      },
+      {
+        "name": "row-highlight",
+        "value": "background-color 120ms ease-out",
+        "purpose": "Filas de lista al pulsar/hover."
+      },
+      {
+        "name": "notice-enter",
+        "value": "opacity + translateY(0.5rem), 200ms (captura) / 240ms (deshacer), via transition o @starting-style",
+        "purpose": "Avisos que pueden cambiar sin reiniciar keyframes."
+      },
+      {
+        "name": "disclosure",
+        "value": "rotate(90deg), 200ms",
+        "purpose": "Chevron de «Cómo se calcula»."
+      },
+      {
+        "name": "spring-settle",
+        "value": "motion/mini spring, stiffness 322, damping 36, mass 1 (ratio 1, response 0.35s)",
+        "purpose": "Entrada y salida de hojas."
+      },
+      {
+        "name": "spring-flick",
+        "value": "motion/mini spring, stiffness 439, damping 34, mass 1 (ratio 0.8, response 0.3s) + velocidad del dedo",
+        "purpose": "Cierre o retorno tras arrastrar la hoja."
+      },
+      {
+        "name": "sheet-fade",
+        "value": "200ms, cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Sustituto de los resortes con prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "900px",
+        "purpose": "Rail lateral, dos columnas y hojas como panel derecho (useWide)."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal de un formulario o paso; responde en pointer-down.",
+      "html": "<button class=\"ds-btn-primary\">Guardar ingresos</button>",
+      "css": ".ds-btn-primary { font: inherit; background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent); border-radius: 6px; padding: 0.35rem 0.7rem; cursor: pointer; transition: transform 120ms var(--ease-out), background-color 120ms ease-out; } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Botón secundario sobre superficie con borde separador.",
+      "html": "<button class=\"ds-btn\">Cancelar</button>",
+      "css": ".ds-btn { font: inherit; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.7rem; cursor: pointer; transition: transform 120ms var(--ease-out), background-color 120ms ease-out; } .ds-btn:active { transform: scale(0.97); } .ds-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Filled Field",
+      "kind": "input",
+      "refersTo": "field-filled",
+      "description": "Campo de hojas y Ajustes: relleno secundario, sin borde, 16px.",
+      "html": "<label class=\"ds-field\"><span>Importe</span><input value=\"126,50\"></label>",
+      "css": ".ds-field { display: grid; gap: 0.2rem; } .ds-field span { font-size: 0.875rem; color: var(--muted); } .ds-field input { font: inherit; font-size: 16px; color: var(--text); background: var(--surface-secondary); border: 0; border-radius: 0.65rem; padding: 0.7rem 0.75rem; } .ds-field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Pestañas inferiores translúcidas en móvil; la activa en azul sobre relleno secundario.",
+      "html": "<nav class=\"ds-tabs\"><a aria-current=\"page\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20a7.5 7.5 0 0 1 15 0\"/></svg>Personal</a><a><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.5 11 12 4l8.5 7M6 9.5V20h12V9.5M10 20v-5h4v5\"/></svg>Familiar</a><a><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1\"/></svg>Ajustes</a></nav>",
+      "css": ".ds-tabs { display: flex; justify-content: space-around; padding: 0.3rem 0.5rem; background: var(--bar); border-top: 1px solid var(--border); backdrop-filter: blur(20px) saturate(180%); } .ds-tabs a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; height: 3.15rem; border-radius: 0.6rem; color: var(--muted); font-size: 0.72rem; text-decoration: none; cursor: pointer; } .ds-tabs a:hover { color: var(--text); } .ds-tabs a[aria-current=\"page\"] { background: var(--surface-secondary); color: var(--accent); font-weight: 650; } .ds-tabs a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-icon { width: 1.4rem; height: 1.4rem; }"
+    },
+    {
+      "name": "Grouped Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Tarjeta de lista agrupada sobre el fondo agrupado, sin borde.",
+      "html": "<section class=\"ds-card\"><h3>Las cuentas del mes</h3><dl><dt>Ingreso de referencia</dt><dd>2.600,00 €</dd><dt>Aporte al hogar</dt><dd>– 1.950,01 €</dd></dl></section>",
+      "css": ".ds-card { background: var(--surface); color: var(--text); border-radius: 12px; padding: 1rem; box-shadow: 0 0.1rem 0.4rem rgba(0,0,0,0.04); font-variant-numeric: tabular-nums; } .ds-card h3 { margin: 0 0 0.75rem; font-size: 1rem; } .ds-card dl { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 0.55rem 1rem; margin: 0; } .ds-card dt { color: var(--muted); } .ds-card dd { margin: 0; font-weight: 600; text-align: right; }"
+    },
+    {
+      "name": "List Row",
+      "kind": "custom",
+      "refersTo": "list-row",
+      "description": "Fila pulsable con importe y chevron; se ilumina al pulsar en vez de encoger.",
+      "html": "<button class=\"ds-row\"><span>Alquiler</span><strong>900,00 €</strong><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-row { font: inherit; display: flex; width: 100%; align-items: center; gap: 0.75rem; padding: 0.7rem 0.5rem; border: 0; border-radius: 0.5rem; background: transparent; color: var(--text); text-align: left; cursor: pointer; transition: background-color 120ms ease-out; } .ds-row span { flex: 1; } .ds-row strong { font-weight: 600; font-variant-numeric: tabular-nums; } .ds-row .ds-icon { width: 1rem; height: 1rem; color: var(--muted); } .ds-row:hover, .ds-row:active { background: var(--surface-secondary); } .ds-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Capture Composer",
+      "kind": "input",
+      "refersTo": "capture-composer",
+      "description": "Compositor en píldora del asistente con botón circular de envío.",
+      "html": "<form class=\"ds-composer\"><input placeholder=\"Apunta un gasto: «gasto 12 comida»\"><button aria-label=\"Enviar\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 19V5M6 11l6-6 6 6\"/></svg></button></form>",
+      "css": ".ds-composer { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.3rem 0.25rem 0.85rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-secondary); } .ds-composer input { flex: 1; min-width: 0; font: inherit; font-size: 16px; color: var(--text); padding: 0.45rem 0; border: 0; background: transparent; } .ds-composer input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-composer button { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: var(--accent); color: var(--on-accent); cursor: pointer; transition: transform 120ms var(--ease-out); } .ds-composer button:active { transform: scale(0.97); } .ds-composer .ds-icon { width: 1.1rem; height: 1.1rem; }"
+    },
+    {
+      "name": "Member Dot",
+      "kind": "chip",
+      "refersTo": "member-dot",
+      "description": "Inicial del miembro sobre su color de paleta (vía data-color).",
+      "html": "<span class=\"ds-dot\" data-color=\"blue\">Á</span> <span class=\"ds-dot ds-dot--ink\" data-color=\"orange\">S</span>",
+      "css": ".ds-dot { display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--member-blue); color: #fff; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; } .ds-dot[data-color=\"orange\"] { background: var(--member-orange); } .ds-dot--ink { color: #1c1c1e; }"
+    },
+    {
+      "name": "Savings Bar",
+      "kind": "custom",
+      "refersTo": "progress-track",
+      "description": "Barra apilada Hogar / Gastado / Ahorro en píldora.",
+      "html": "<div class=\"ds-savings\"><span class=\"ds-h\"></span><span class=\"ds-s\"></span><span class=\"ds-a\"></span></div>",
+      "css": ".ds-savings { display: flex; height: 0.75rem; overflow: hidden; border-radius: 999px; background: var(--surface-secondary); } .ds-h { flex: 84; background: var(--muted); } .ds-s { flex: 10; background: var(--accent); } .ds-a { flex: 6; background: var(--positive); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La app del sistema que faltaba",
+    "overview": "Family Finance se comporta como si fuera una app más del sistema operativo: fuente del sistema, listas agrupadas sobre un fondo gris agrupado, colores del sistema que cambian solos entre claro y oscuro, barras translúcidas y respuesta táctil inmediata. La dirección la fijó el usuario (el lenguaje de diseño de Apple, traducido a la web) y el build la cumple con CSS nativo, un set de iconos propio y resortes de `motion/mini`, sin fuentes externas ni estilos en línea (CSP estricta).\n\nEs una herramienta de modo *Operate*: densa pero tranquila, para apuntar un gasto con una mano y revisar el plan del hogar de vez en cuando. La jerarquía la llevan los títulos grandes y las cifras, no la decoración: la única cifra héroe es el ahorro del mes, y la prueba de confianza es la cuenta visible («Cómo se calcula», «Cuadra» con su check verde). Todo número usa cifras tabulares para que las columnas de importes alineen.\n\nRechazos confirmados en el contrato: estética de banca o *fintech*, gráficos decorativos y gamificación. Los gráficos son SVG/CSS nativos y solo muestran cifras que salen del dominio.",
+    "keyCharacteristics": [
+      "Fuente del sistema con tracking negativo que crece con el tamaño.",
+      "Tarjetas blancas (negras en oscuro) sobre fondo agrupado, casi sin sombra.",
+      "Un único acento, el azul del sistema, para lo accionable y lo actual.",
+      "Verde y rojo reservados para estado (cuadra/ahorro, error/déficit).",
+      "Materiales translúcidos solo en la navegación flotante (barra de pestañas y barra de captura).",
+      "Pulsación en pointer-down: los botones se encogen, las filas se iluminan.",
+      "Hojas nativas `<dialog>` que entran y salen por el mismo borde con resortes interrumpibles."
+    ],
+    "rules": [
+      {
+        "name": "The One Accent Rule",
+        "body": "El azul es el único color de acción. Lo actual (pestaña, mes en el histórico) y lo pulsable usan azul; nada más compite con él.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reserved Status Rule",
+        "body": "Verde y rojo significan estado y nada más. Por eso la paleta de miembros no incluye verde ni rojo.",
+        "section": "colors"
+      },
+      {
+        "name": "The Member Through Attribute Rule",
+        "body": "El color de una persona llega siempre por `data-color` y la variable `--member-color`; nunca por `style`, porque la CSP lo prohíbe.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tracking Scales With Size Rule",
+        "body": "Cuanto más grande el texto, más negativo el tracking: -0.04em en el título grande, -0.035em en la cifra héroe, -0.01em en el título de la app, normal en el cuerpo.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Money Rule",
+        "body": "Todo importe se compone con cifras tabulares, alineado a la derecha en las listas de cuentas.",
+        "section": "typography"
+      },
+      {
+        "name": "The Safe Area Rule",
+        "body": "Todo lo que toca un borde de la pantalla (shell, pestañas, captura, hojas, deshacer) suma su `env(safe-area-inset-*)`.",
+        "section": "layout"
+      },
+      {
+        "name": "The Material Only Where It Floats Rule",
+        "body": "`backdrop-filter: blur(20px) saturate(180%)` sobre `--bar` solo en la barra de pestañas y la barra de captura móvil. Con `prefers-reduced-transparency: reduce` ambas pasan a `--surface` opaco.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Tonal Card Rule",
+        "body": "Las tarjetas se separan del fondo por tono, no por borde ni sombra marcada.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar solo los custom properties de `:root`; todo color nuevo necesita su par claro/oscuro.",
+      "Do responder en pointer-down: botones `scale(0.97)` en 120ms, filas con relleno secundario en lugar de encoger.",
+      "Do animar hojas con los resortes *settle*/*flick* de `useSheet` y avisos con transiciones o `@starting-style`; con `prefers-reduced-motion` sustituir movimiento por fundido.",
+      "Do dibujar iconos nuevos en el set de `icons.tsx` (24px, trazo 2px redondeado, `currentColor`, `aria-hidden`).",
+      "Do mantener los campos a 16px y los objetivos táctiles en torno a 2.5rem en móvil.",
+      "Do usar cifras tabulares y alinear importes a la derecha.",
+      "Do aplicar el color de miembro solo vía `data-color`."
+    ],
+    "donts": [
+      "Don't usar estilos en línea ni fuentes externas: la CSP de producción los bloquea.",
+      "Don't usar verde o rojo para nada que no sea estado; no añadir verde ni rojo a la paleta de miembros.",
+      "Don't poner material translúcido fuera de las barras flotantes ni ignorar `prefers-reduced-transparency`.",
+      "Don't añadir gráficos decorativos, estética de banca o *fintech*, ni gamificación.",
+      "Don't reiniciar keyframes para notificaciones que pueden cambiar de contenido.",
+      "Don't añadir librerías de animación distintas de `motion/mini` (ADR-019) ni superar el presupuesto de 160 kB gzip (ADR-020)."
+    ]
+  }
+}
