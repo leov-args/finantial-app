@@ -40,6 +40,17 @@ npm run dev        # http://localhost:5173
 | `npm run test:watch` | tests en modo watch |
 | `npm run check` | todo lo anterior en orden (falla si el JS supera 160 kB gzip, ADR-020) |
 
+## Publicación (GitHub Pages)
+
+El workflow `.github/workflows/deploy.yml` ejecuta `npm run check` en cada push; solo los push a `main` publican `dist/` en GitHub Pages ([ADR-021](docs/decisions.md)).
+
+Pasos manuales, una vez:
+
+1. En el repo: **Settings → Pages → Source: GitHub Actions**. Con un repo privado, Pages requiere un plan de pago.
+2. Hacer push (o merge) a `main`. La app queda en `https://<usuario>.github.io/<repo>/`.
+
+Los datos de la versión publicada son distintos de los de `localhost`: IndexedDB va por origen.
+
 ## Dónde se guardan los datos
 
 En **IndexedDB** del navegador, base de datos `family-finance`, ligada al origen (dominio + puerto) desde el que se abre la app. Cada navegador y cada dispositivo tiene su propia copia; no se sincronizan.
