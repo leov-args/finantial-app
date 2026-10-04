@@ -53,6 +53,8 @@ const bundleBudget = (): Plugin => ({
 
 export default defineConfig({
   plugins: [react(), contentSecurityPolicy(), bundleBudget()],
+  // Relative asset URLs: the build works under any subpath (GitHub Pages /<repo>/), ADR-021.
+  base: './',
   build: {
     target: 'es2022',
     // No source maps in production: smaller install for low-storage phones.

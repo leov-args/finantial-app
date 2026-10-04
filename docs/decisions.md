@@ -153,6 +153,20 @@ UI, textos de error de aplicación y documentación en español; identificadores
 - La librería de animación (ADR-019, tarea 16) debe caber, o revisar esta entrada al elegirla. Cupo: 154,86 kB con `motion/mini` (2026-10-04).
 - Si falta margen, el primer recorte es `zod/mini` (ADR-014); después, cargar de forma diferida lo que no se usa al arrancar (por ejemplo, el motor OCR de la fase 6).
 
+## ADR-021 · Publicación estática en GitHub Pages — Aceptada (2026-10-04)
+
+**Contexto.** Se quiere usar la app desde el móvil sin montar un servidor. Es estática (sin backend) y enruta por hash, así que cualquier hosting estático con HTTPS sirve.
+
+**Decisión.**
+- **Hosting:** GitHub Pages, publicado por GitHub Actions (`.github/workflows/deploy.yml`). Cada push ejecuta `npm run check`; solo `main` publica.
+- **`base: './'`** en `vite.config.ts`: rutas relativas, así la build funciona bajo `/<repo>/` y sigue funcionando si el repo cambia de nombre.
+- **Seguridad:** la CSP sigue yendo como `<meta>` en el HTML (ADR-015); Pages no permite cabeceras propias, pero no hacen falta.
+
+**Riesgos y consecuencias.**
+- **Origen compartido:** todas las Pages de proyecto de `<usuario>.github.io` comparten origen y, por tanto, IndexedDB y almacenamiento. Cualquier otra página publicada bajo el mismo usuario podría leer los datos financieros. Mitigación, si importa: dominio propio o una cuenta/organización dedicada solo a esta app.
+- **Los datos no migran entre orígenes:** lo guardado en `localhost` no aparece en la versión publicada, ni al revés. Hasta el backup (fase 8) no hay forma de pasarlos.
+- **Repo privado:** Pages en repos privados requiere un plan de pago de GitHub; con repo público el código queda visible (los datos no, viven en el navegador).
+
 ## Decisiones abiertas
 
 | # | Pregunta | Cuándo |
