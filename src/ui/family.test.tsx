@@ -218,10 +218,14 @@ describe('family', () => {
       },
     });
 
-    expect(await screen.findByText(`${f(260000)} − ${f(94999)} + ${f(30000)} Portátil = ${f(195001)}`)).toBeTruthy();
-    expect(screen.getByText(`${f(140000)} − ${f(95000)} + ${f(5000)} Portátil = ${f(50000)}`)).toBeTruthy();
+    // Each calculation ends in what the member really keeps, assigned lines included.
+    expect(await screen.findByText(`${f(260000)} − ${f(165001)} comunes − ${f(30000)} Portátil = ${f(64999)}`)).toBeTruthy();
+    expect(screen.getByText(`${f(140000)} − ${f(45000)} comunes − ${f(5000)} Portátil = ${f(90000)}`)).toBeTruthy();
+    expect(screen.getByText(`Se queda con ${f(64999)}`)).toBeTruthy();
     expect(screen.getByText(/Ingresos de referencia/)).toBeTruthy();
-    expect(screen.getByText(`${f(94999)} · ${f(95000)}`)).toBeTruthy();
+    expect(screen.getByText('Líneas asignadas')).toBeTruthy();
+    expect(screen.getByText(`− ${f(35000)}`)).toBeTruthy();
+    expect(screen.getByText(f(154999))).toBeTruthy();
   });
 
   it('C fix 3, A7: the proportional breakdown shows the share of income each one pays', async () => {
@@ -236,8 +240,7 @@ describe('family', () => {
     });
 
     // F6 with the proportional rule: 1.365,01 / 735,00, both 52,5 % of their income.
-    expect(await screen.findByText(/52,5.%.de 2\.600,00.€ \+ 300,00.€ Portátil = 1\.665,01.€/)).toBeTruthy();
-    expect(screen.getByText(/52,5.%.de 1\.400,00.€ = 735,00.€/)).toBeTruthy();
-    expect(screen.queryByText('Cada uno se queda con')).toBeNull();
+    expect(await screen.findByText(/^2\.600,00.€ − 1\.365,01.€ \(52,5.%\) − 300,00.€ Portátil = 934,99.€$/)).toBeTruthy();
+    expect(screen.getByText(/^1\.400,00.€ − 735,00.€ \(52,5.%\) = 665,00.€$/)).toBeTruthy();
   });
 });

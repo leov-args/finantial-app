@@ -106,6 +106,18 @@ describe('contributions', () => {
     }
   });
 
+  it('assigned lines come out of what their owner keeps, not out of the equal split', () => {
+    const leoAndMeda: Participant[] = [
+      { memberId: ANA, income: eur(300000) },
+      { memberId: PARTNER, income: eur(120000) },
+    ];
+    const split = contributions(leoAndMeda, [formula(328201), assigned([ANA, 39953], [PARTNER, 4547])], 'EQUAL_KEEP', 'EUR');
+    expect(formulaOf(split)).toEqual([254101, 74100]);
+    expect(totals(split)).toEqual([294054, 78647]);
+    expect(split.contributions.map((c) => c.keeps.amountMinor)).toEqual([5946, 41353]);
+    expect(split.remaining.amountMinor).toBe(47299);
+  });
+
   it('F7: a plan above the incomes is a deficit and still adds up', () => {
     const split = contributions(anaAndPartner, [formula(400003)], 'EQUAL_KEEP', 'EUR');
     expect(split.remaining.amountMinor).toBe(-3);

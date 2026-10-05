@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { format } from '../domain/money/money.ts';
+import { format, subtract } from '../domain/money/money.ts';
 import type { Money } from '../domain/money/money.ts';
 import type { Member } from '../domain/member/member.ts';
 import type { PlanItem } from '../domain/family/plan.ts';
@@ -41,10 +41,16 @@ export function FamilyView() {
   const hasParticipants = data.split.contributions.length > 0;
   const isDeficit = data.split.remaining.amountMinor < 0;
   const equalKeep = data.settings.splitRule === 'EQUAL_KEEP';
+  const assignedTotal = subtract(data.split.planTotal, data.split.formulaTotal);
   const breakdown = (contribution: Contribution): string => {
-    const params = { income: format(contribution.income), assigned: assignedTerms(data.items, contribution), total: format(contribution.total) };
+    const params = {
+      income: format(contribution.income),
+      formula: format(contribution.formula),
+      assigned: assignedTerms(data.items, contribution),
+      keeps: format(contribution.keeps),
+    };
     return equalKeep
-      ? t('family.breakdownEqualKeep', { ...params, keeps: format(contribution.keeps) })
+      ? t('family.breakdownEqualKeep', params)
       : t('family.breakdownProportional', { ...params, rate: percent(contribution.formulaRate) });
   };
 
@@ -66,7 +72,7 @@ export function FamilyView() {
                     <span className="member-dot" data-color={member?.color} aria-hidden="true">{member ? [...member.name][0] : ''}</span>
                     <span className="family-member__name">{member?.name ?? contribution.memberId}</span>
                     <strong>{format(contribution.total)}</strong>
-                    <span className="muted small">{t('family.keeps', { amount: format(contribution.keeps) })}</span>
+                    <span className={contribution.keeps.amountMinor < 0 ? 'muted small negative' : 'muted small'}>{t('family.keeps', { amount: format(contribution.keeps) })}</span>
                   </li>
                 );
               })}
@@ -107,14 +113,14 @@ export function FamilyView() {
               <dd>{format(data.split.incomeTotal)}</dd>
               <dt>{t('family.formulaTotal')}</dt>
               <dd>{t('family.minusAmount', { amount: format(data.split.formulaTotal) })}</dd>
-              <dt>{t('family.remaining')}</dt>
-              <dd className={isDeficit ? 'negative' : undefined}>{format(data.split.remaining)}</dd>
-              {equalKeep && hasParticipants && (
+              {assignedTotal.amountMinor > 0 && (
                 <>
-                  <dt>{t('family.eachKeeps')}</dt>
-                  <dd>{data.split.contributions.map((contribution) => format(contribution.keeps)).join(' · ')}</dd>
+                  <dt>{t('family.assignedTotal')}</dt>
+                  <dd>{t('family.minusAmount', { amount: format(assignedTotal) })}</dd>
                 </>
               )}
+              <dt>{t('family.remaining')}</dt>
+              <dd className={isDeficit ? 'negative' : undefined}>{format(data.split.remaining)}</dd>
             </dl>
             <ul className="calculation-list">
               {data.split.contributions.map((contribution) => (

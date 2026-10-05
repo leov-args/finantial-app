@@ -31,7 +31,7 @@ export interface Participant {
 export interface Contribution {
   readonly memberId: MemberId;
   readonly income: Money;
-  /** income − formula. */
+  /** income − total: what the member really has left after paying the plan, assigned lines included. */
   readonly keeps: Money;
   /** Share of the FORMULA items. Never negative. */
   readonly formula: Money;
@@ -49,7 +49,7 @@ export interface FamilySplit {
   /** Σ of every plan item (assigned items count as the sum of their shares). */
   readonly planTotal: Money;
   readonly formulaTotal: Money;
-  /** Σ incomes − Σ FORMULA items. Negative is a deficit (F7). */
+  /** Σ incomes − Σ every plan item. Negative is a deficit (F7). */
   readonly remaining: Money;
   /** In `participants` order. Empty when nobody has a reference income (F7). */
   readonly contributions: readonly Contribution[];
@@ -104,7 +104,7 @@ export function contributions(
   );
   const planTotal = sum(items.map(planItemAmount), currency);
   const incomeTotal = sum(participants.map((p) => p.income), currency);
-  const remaining = subtract(incomeTotal, formulaTotal);
+  const remaining = subtract(incomeTotal, planTotal);
 
   if (participants.length === 0) {
     return Object.freeze({ incomeTotal, planTotal, formulaTotal, remaining, contributions: Object.freeze([]) });
@@ -143,14 +143,15 @@ export function contributions(
       participants.map((p, index) => {
         const formula = formulaByIndex[index] ?? zero(currency);
         const memberAssigned = assigned.get(p.memberId) ?? zero(currency);
+        const total = add(formula, memberAssigned);
         return Object.freeze({
           memberId: p.memberId,
           income: p.income,
-          keeps: subtract(p.income, formula),
+          keeps: subtract(p.income, total),
           formula,
           formulaRate: shareInBasisPoints(formula, p.income),
           assigned: memberAssigned,
-          total: add(formula, memberAssigned),
+          total,
         });
       }),
     ),
