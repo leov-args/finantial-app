@@ -16,6 +16,7 @@ import { asMemberId, asPlanItemId } from '../../domain/shared/ids.ts';
 import type { AppContext } from '../shared/context.ts';
 import { freezePastMonths } from '../shared/snapshots.ts';
 import { ApplicationError, type FieldIssue, notFound } from '../shared/errors.ts';
+import { clearTombstone, markTombstone } from '../shared/tombstones.ts';
 import { idSchema, moneySchema, nameSchema, parseInput } from '../shared/schemas.ts';
 
 const kindSchema = z.discriminatedUnion('type', [
@@ -70,6 +71,7 @@ export class PlanService {
       const item = buildPlanItem({ id: asPlanItemId(this.ctx.newId()), name: p.name, kind: toKind(p.kind), createdAt: now, updatedAt: now });
       await this.checkShares(item);
       await this.ctx.planItems.save(item);
+      await clearTombstone(this.ctx, 'planItems', item.id);
       return item;
     });
   }
@@ -87,6 +89,7 @@ export class PlanService {
       );
       await this.checkShares(current);
       await this.ctx.planItems.save(current);
+      await clearTombstone(this.ctx, 'planItems', current.id);
       return { previous, current };
     });
   }
@@ -98,6 +101,7 @@ export class PlanService {
       const item = await this.ctx.planItems.getById(id);
       if (!item) throw notFound('Plan item', id);
       await this.ctx.planItems.delete(id);
+      await markTombstone(this.ctx, 'planItems', id);
       return item;
     });
   }
@@ -109,6 +113,7 @@ export class PlanService {
       await freezePastMonths(this.ctx);
       await this.checkShares(item);
       await this.ctx.planItems.save(item);
+      await clearTombstone(this.ctx, 'planItems', item.id);
       return item;
     });
   }

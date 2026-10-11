@@ -24,6 +24,7 @@ function required<T>(value: T | undefined): T {
   return value;
 }
 const FIRST = required(MIGRATIONS[0]);
+const SECOND = required(MIGRATIONS[1]);
 const LAST = required(MIGRATIONS.at(-1));
 
 const sampleExpense: ExpenseRecord = {
@@ -56,7 +57,9 @@ describe('FamilyFinanceDb', () => {
     const db = track(new FamilyFinanceDb(uniqueName()));
     expect(await db.planItems.count()).toBe(0);
     expect(await db.settings.count()).toBe(0);
-    expect(db.dataTables.map((t) => t.name)).toEqual(['members', 'categories', 'incomes', 'expenses', 'planItems', 'settings', 'monthSnapshots']);
+    expect(db.dataTables.map((t) => t.name)).toEqual([
+      'members', 'categories', 'incomes', 'expenses', 'planItems', 'settings', 'monthSnapshots', 'tombstones',
+    ]);
   });
 
   it('seeds the default categories once, on creation', async () => {
@@ -138,11 +141,29 @@ describe('migrations', () => {
     await v1.table('expenses').add(sampleExpense);
     v1.close();
 
-    const upgraded = track(new FamilyFinanceDb(name));
+    const upgraded = track(new Dexie(name));
+    applyMigrations(upgraded, [FIRST, SECOND]);
     await upgraded.open();
     expect(upgraded.verno).toBe(2);
+    expect(await upgraded.table('expenses').get('exp-1')).toEqual(sampleExpense);
+    expect(await upgraded.table('monthSnapshots').count()).toBe(0);
+  });
+
+  it('v3 adds an empty tombstones table to a populated v2 database without losing data', async () => {
+    const name = uniqueName();
+    const v2 = track(new Dexie(name));
+    applyMigrations(v2, MIGRATIONS.slice(0, 2));
+    await v2.open();
+    await v2.table('expenses').add(sampleExpense);
+    v2.close();
+
+    const upgraded = track(new FamilyFinanceDb(name));
+    await upgraded.open();
+
+    expect(upgraded.verno).toBe(3);
     expect(await upgraded.expenses.get('exp-1')).toEqual(sampleExpense);
     expect(await upgraded.monthSnapshots.count()).toBe(0);
+    expect(await upgraded.tombstones.count()).toBe(0);
   });
 
   it('aborts a failing upgrade and leaves the old data intact', async () => {

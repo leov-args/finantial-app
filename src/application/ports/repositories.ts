@@ -5,7 +5,8 @@ import type { PlanItem } from '../../domain/family/plan.ts';
 import type { MonthSnapshot } from '../../domain/family/snapshot.ts';
 import type { Income } from '../../domain/income/income.ts';
 import type { Member } from '../../domain/member/member.ts';
-import type { IsoDate, YearMonth } from '../../domain/shared/dates.ts';
+import type { IsoDate, Timestamp, YearMonth } from '../../domain/shared/dates.ts';
+import type { TombstoneTable } from '../../domain/shared/tombstone.ts';
 import type { CategoryId, ExpenseId, IncomeId, MemberId, PlanItemId } from '../../domain/shared/ids.ts';
 
 /**
@@ -74,6 +75,11 @@ export interface SettingsRepository {
   /** The stored settings, or the defaults when nothing was saved yet. */
   getHousehold(): Promise<HouseholdSettings>;
   saveHousehold(settings: HouseholdSettings): Promise<void>;
+}
+
+export interface TombstoneRepository {
+  mark(table: TombstoneTable, id: string, deletedAt: Timestamp): Promise<void>;
+  clear(table: TombstoneTable, id: string): Promise<void>;
 }
 
 /**

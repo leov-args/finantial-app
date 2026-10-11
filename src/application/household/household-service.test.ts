@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { makeTestApp } from '../../test/test-app.ts';
+import { asTimestamp } from '../../domain/shared/dates.ts';
 
 type TestApp = ReturnType<typeof makeTestApp>;
 
@@ -73,6 +74,7 @@ describe('HouseholdService.exportFile', () => {
     const { text } = await source.services.household.exportFile();
     const target = app();
     const { parsed } = target.services.household.preview(text);
+    await target.db.tombstones.put({ table: 'members', id: 'deleted-on-target', deletedAt: asTimestamp('2026-10-02T10:00:00.000Z') });
     await target.services.household.join(parsed);
 
     const sortById = <T extends { readonly id: string }>(rows: readonly T[]) => [...rows].sort((a, b) => a.id.localeCompare(b.id));
@@ -86,6 +88,7 @@ describe('HouseholdService.exportFile', () => {
     expect(sortById(targetData.planItems)).toEqual(sortById(sourceData.planItems));
     expect(targetData.settings).toEqual(sourceData.settings);
     expect(sortByMonth(targetData.monthSnapshots)).toEqual(sortByMonth(sourceData.monthSnapshots));
+    expect(await target.db.tombstones.count()).toBe(0);
   });
 });
 

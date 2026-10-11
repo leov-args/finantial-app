@@ -9,7 +9,9 @@ import type {
   MonthSnapshotRecord,
   PlanItemRecord,
   SettingsRecord,
+  TombstoneRecord,
 } from './records.ts';
+import type { TombstoneTable } from '../../domain/shared/tombstone.ts';
 import { applyMigrations } from './migrations.ts';
 
 export const DB_NAME = 'family-finance';
@@ -34,6 +36,7 @@ export class FamilyFinanceDb extends Dexie {
   /** No row means the defaults (see DexieSettingsRepository). */
   settings!: Table<SettingsRecord, string>;
   monthSnapshots!: Table<MonthSnapshotRecord, string>;
+  tombstones!: Table<TombstoneRecord, [TombstoneTable, string]>;
 
   constructor(name: string = DB_NAME, options: DbOptions = {}) {
     super(name, options.dexie);
@@ -54,8 +57,10 @@ export class FamilyFinanceDb extends Dexie {
     });
   }
 
-  /** Tables that hold user data, in backup/restore order. */
+  /** Household state included in all-table transactions and replaceAll. */
   get dataTables(): Table[] {
-    return [this.members, this.categories, this.incomes, this.expenses, this.planItems, this.settings, this.monthSnapshots];
+    return [
+      this.members, this.categories, this.incomes, this.expenses, this.planItems, this.settings, this.monthSnapshots, this.tombstones,
+    ];
   }
 }

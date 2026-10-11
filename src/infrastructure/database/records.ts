@@ -9,6 +9,7 @@
  * (see migrations.ts and docs/storage.md).
  */
 import type { Recurrence } from '../../domain/expense/expense.ts';
+import type { Tombstone } from '../../domain/shared/tombstone.ts';
 
 export interface MoneyRecord {
   amountMinor: number;
@@ -96,3 +97,5 @@ export interface SettingsRecord {
   id: 'household';
   splitRule: string;
 }
+
+export type TombstoneRecord = Tombstone;

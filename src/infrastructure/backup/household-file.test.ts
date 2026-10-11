@@ -50,6 +50,8 @@ describe('household file', () => {
       dbVersion: CURRENT_DB_VERSION,
       data,
     });
+    expect(CURRENT_DB_VERSION).toBe(3);
+    expect(Object.keys((JSON.parse(text) as { data: Record<string, unknown> }).data)).toEqual(Object.keys(data));
     expect(parsed.summary).toEqual({
       memberNames: ['Ana'],
       expenses: 0,

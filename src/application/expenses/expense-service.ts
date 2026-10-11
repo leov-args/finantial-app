@@ -18,6 +18,7 @@ import { type CategoryId, type MemberId, asCategoryId, asExpenseId, asMemberId, 
 import type { AppContext } from '../shared/context.ts';
 import { ApplicationError, notFound } from '../shared/errors.ts';
 import { requireCategory, requireMember } from '../shared/guards.ts';
+import { clearTombstone, markTombstone } from '../shared/tombstones.ts';
 import {
   descriptionSchema,
   idSchema,
@@ -200,6 +201,7 @@ export class ExpenseService {
         updatedAt: now,
       });
       await this.ctx.expenses.save(expense);
+      await clearTombstone(this.ctx, 'expenses', expense.id);
       return expense;
     });
   }
@@ -228,6 +230,7 @@ export class ExpenseService {
       );
       const current = updateExpense(previous, changes, toTimestamp(this.ctx.clock.now()));
       await this.ctx.expenses.save(current);
+      await clearTombstone(this.ctx, 'expenses', current.id);
       return { previous, current };
     });
   }
@@ -242,6 +245,7 @@ export class ExpenseService {
         throw new ApplicationError('CONFLICT', 'El gasto cambió desde que se creó.', [], { reason: 'RECORD_CHANGED' });
       }
       await this.ctx.expenses.delete(id);
+      await markTombstone(this.ctx, 'expenses', id);
       return expense;
     });
   }
@@ -258,6 +262,7 @@ export class ExpenseService {
       await requireCategory(this.ctx, expense.categoryId, 'categoryId', { mustBeActive: false });
       await this.checkMembers(expense.paidBy, expense.scope, false);
       await this.ctx.expenses.save(expense);
+      await clearTombstone(this.ctx, 'expenses', expense.id);
       return expense;
     });
   }
