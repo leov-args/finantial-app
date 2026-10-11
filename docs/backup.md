@@ -43,3 +43,15 @@ No se fusionan hogares. Una segunda importación en un dispositivo que ya tiene 
 ## E1-2 database version
 
 The application writes `dbVersion: 3`. The backup data shape is unchanged and does not include tombstones; files with older database versions remain importable, with absent tables treated as empty.
+
+## E1-3 current behavior
+
+The sections above record the pre-E1-3 format and first-use flow. This section supersedes their statements about the current database version, tombstones, and replacing an existing household.
+
+Household files keep `formatVersion: 1` and write `dbVersion: 3`. Their `data` contains the record arrays for members, categories, incomes, expenses, plan items, settings, month snapshots, and tombstones. Each tombstone is `{ "table": "members", "id": "deleted-id", "deletedAt": "2026-10-02T10:00:00.000Z" }`; `table` is one of `members`, `categories`, `incomes`, `expenses`, or `planItems`. Tombstone timestamps must be valid ISO UTC timestamps. A file cannot contain duplicate tombstones for the same table and id, or a tombstone for an id that is still live in that table.
+
+Files with `dbVersion` 1 or 2 remain importable; missing tables, including tombstones, are treated as empty. A version 3 file must include every table, including `tombstones`. Files with a newer database version are rejected. The maximum file size is 20 MB. The file contains records, not domain objects; it is not compressed, checksummed, encrypted, or accompanied by receipts.
+
+Joining a household during first use still requires an empty database (the default seeded categories are allowed). In Ajustes, **Copia de seguridad** can instead preview a valid file and replace all data on the device after explicit confirmation. The warning recommends sending the current data first. Cancel and invalid files do not write anything. Restore clears every data table, including seeded categories, month snapshots, and tombstones, then writes the file in one IndexedDB read-write transaction. A failed write rolls the transaction back. Restore does not merge households. The device's “who am I” preference remains only when its member id is active in the restored household; otherwise it is cleared.
+
+The existing “Send changes” action exports the backup file. There is no separate export action. The file summary shown before joining or restoring is unchanged: member names, expense/income/plan counts, and the date range.

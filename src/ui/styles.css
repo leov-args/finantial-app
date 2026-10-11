@@ -253,6 +253,9 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.5; }
   .plan-row:hover, .add-line-row:hover { background: var(--surface-secondary); }
 }
 .sheet .actions .danger { margin-left: auto; color: var(--negative); }
+.settings-section .actions .danger { margin-left: auto; color: var(--negative); }
+.backup-section .actions { flex-wrap: wrap; }
+.backup-section__warning { color: var(--negative); }
 .success { color: var(--positive); font-size: 0.9rem; }
 .swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem 0.25rem; padding: 0.25rem 0; }
 .swatch { display: grid; justify-items: center; gap: 0.35rem; padding: 0.3rem; border: 0; background: transparent; color: var(--muted); font-size: 0.75rem; }

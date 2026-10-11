@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { makeTestApp } from '../../test/test-app.ts';
-import { asTimestamp } from '../../domain/shared/dates.ts';
 
 type TestApp = ReturnType<typeof makeTestApp>;
 
@@ -39,6 +38,8 @@ describe('HouseholdService.exportFile', () => {
     });
     await source.services.plan.create({ name: 'Alquiler', kind: { type: 'FORMULA', amount: eur(90000) } });
     await source.services.plan.setSplitRule({ splitRule: 'PROPORTIONAL' });
+    const temporaryCategory = await source.services.categories.create({ name: 'Temporary' });
+    await source.services.categories.delete(temporaryCategory.id);
 
     const { filename, text } = await source.services.household.exportFile();
     const preview = source.services.household.preview(text);
@@ -46,6 +47,9 @@ describe('HouseholdService.exportFile', () => {
     expect(filename).toMatch(/^family-finance-\d{4}-\d{2}-\d{2}\.json$/);
     expect(preview.summary).toEqual({
       memberNames: ['Ana'], expenses: 1, incomes: 1, planItems: 1, dateRange: { from: '2026-09-01', to: '2026-09-02' },
+    });
+    expect(preview.parsed).toMatchObject({
+      tombstones: [{ table: 'categories', id: temporaryCategory.id, deletedAt: '2026-10-02T10:00:00.000Z' }],
     });
   });
 
@@ -70,11 +74,12 @@ describe('HouseholdService.exportFile', () => {
       name: 'Portátil', kind: { type: 'ASSIGNED', shares: [{ memberId: ana.id, amount: eur(30000) }] },
     });
     await source.services.plan.setSplitRule({ splitRule: 'EQUAL_KEEP' });
+    const removedCategory = await source.services.categories.create({ name: 'Temporal' });
+    await source.services.categories.delete(removedCategory.id);
 
     const { text } = await source.services.household.exportFile();
     const target = app();
     const { parsed } = target.services.household.preview(text);
-    await target.db.tombstones.put({ table: 'members', id: 'deleted-on-target', deletedAt: asTimestamp('2026-10-02T10:00:00.000Z') });
     await target.services.household.join(parsed);
 
     const sortById = <T extends { readonly id: string }>(rows: readonly T[]) => [...rows].sort((a, b) => a.id.localeCompare(b.id));
@@ -88,15 +93,15 @@ describe('HouseholdService.exportFile', () => {
     expect(sortById(targetData.planItems)).toEqual(sortById(sourceData.planItems));
     expect(targetData.settings).toEqual(sourceData.settings);
     expect(sortByMonth(targetData.monthSnapshots)).toEqual(sortByMonth(sourceData.monthSnapshots));
-    expect(await target.db.tombstones.count()).toBe(0);
+    expect(targetData.tombstones).toEqual(sourceData.tombstones);
   });
 });
 
 async function readData(instance: TestApp) {
   await instance.db.open();
-  const [members, categories, incomes, expenses, planItems, settings, monthSnapshots] = await Promise.all([
+  const [members, categories, incomes, expenses, planItems, settings, monthSnapshots, tombstones] = await Promise.all([
     instance.db.members.toArray(), instance.db.categories.toArray(), instance.db.incomes.toArray(), instance.db.expenses.toArray(),
-    instance.db.planItems.toArray(), instance.db.settings.toArray(), instance.db.monthSnapshots.toArray(),
+    instance.db.planItems.toArray(), instance.db.settings.toArray(), instance.db.monthSnapshots.toArray(), instance.db.tombstones.toArray(),
   ]);
-  return { members, categories, incomes, expenses, planItems, settings, monthSnapshots };
+  return { members, categories, incomes, expenses, planItems, settings, monthSnapshots, tombstones };
 }

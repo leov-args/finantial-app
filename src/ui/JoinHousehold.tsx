@@ -7,6 +7,7 @@ import { useMe } from './common.tsx';
 import { FORM, toErrors } from './errors.ts';
 import { t } from './i18n/index.ts';
 import { useServices } from './services-context.tsx';
+import { HouseholdPreview } from './HouseholdPreview.tsx';
 
 export function JoinHousehold({ onBack, onStep, onJoined }: {
   readonly onBack: () => void;
@@ -20,8 +21,6 @@ export function JoinHousehold({ onBack, onStep, onJoined }: {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [, setMe] = useMe(activeMembers);
-  const dateRange = archive?.summary.dateRange;
-
   const latestPick = useRef(0);
 
   async function readFile(input: HTMLInputElement) {
@@ -99,15 +98,7 @@ export function JoinHousehold({ onBack, onStep, onJoined }: {
       </label>
       {errors[FORM] && <p className="error" role="alert">{errors[FORM]}</p>}
       {archive && (
-        <div className="panel join-household__preview">
-        <h4 id="join-household-preview-title">{t('onboarding.householdPreviewTitle')}</h4>
-          <p>{t('app.members')}: {archive.summary.memberNames.join(', ') || '—'}</p>
-          <p>{t('onboarding.householdCounts', {
-            expenses: archive.summary.expenses, incomes: archive.summary.incomes, planItems: archive.summary.planItems,
-          })}</p>
-          <p>{t('onboarding.householdDateRange', {
-            from: dateRange?.from ?? '—', to: dateRange?.to ?? '—',
-          })}</p>
+        <HouseholdPreview archive={archive}>
           <div className="actions">
             <button type="button" className="primary" onClick={() => void confirm()} disabled={busy}>
               {t('onboarding.householdConfirm')}
@@ -116,7 +107,7 @@ export function JoinHousehold({ onBack, onStep, onJoined }: {
               {t('common.cancel')}
             </button>
           </div>
-        </div>
+        </HouseholdPreview>
       )}
       <button type="button" onClick={onBack} disabled={busy}>{t('onboarding.back')}</button>
     </section>
