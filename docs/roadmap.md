@@ -43,7 +43,7 @@ Todo tamaño S.
 |---|---|---|---|
 | E1-1 | ~~**Historial del plan y de los ingresos de referencia**~~ **Hecho (2026-10-11)** | L | Cambiar el plan o un ingreso en el mes N no altera ningún mes anterior a N, ni en Personal ni en Familiar. Versión de esquema nueva con su test (sin datos que migrar: nadie usa la app aún). *Decidido (2026-10-11):* instantáneas automáticas de las entradas del mes antes de cada cambio, sin acción del usuario; spec en `docs/spec-historial-plan.md`. Familiar gana selector de mes. |
 | E1-2 | Borrados con marca (*tombstones*) | S–M | Tabla nueva `tombstones {table, id, deletedAt}` escrita en la misma transacción que el borrado; deshacer la quita. Las consultas actuales no cambian. Migración con su test. |
-| E1-3 | Backup: exportar y restaurar (reemplazar) | M | En Ajustes. Archivo JSON con los records y los borrados (sin ZIP hasta que existan recibos; `formatVersion` permite añadirlo). La restauración sigue `docs/backup.md`: valida todo, muestra un resumen, pide confirmación y escribe en una transacción. Tests: ida y vuelta exacta, archivo inválido, versión más nueva rechazada, referencia rota, reversión si falla a mitad. Actualizar `docs/backup.md`. |
+| E1-3 | Backup: exportar y restaurar (reemplazar) | M | **Formato y restauración mínima adelantados por E2-2** (mismo JSON de records, sin ZIP ni recibos). Pendiente: exportar desde Ajustes e incluir los tombstones de E1-2. `docs/backup.md` define el contrato compartido. |
 
 ## Etapa 2: Dos móviles
 
@@ -52,7 +52,7 @@ El archivo de backup y el de sincronización son **el mismo formato**: restaurar
 | Id | Ítem | Tamaño | Criterio de aceptación |
 |---|---|---|---|
 | E2-1 | PWA instalable y offline | M | Manifest, iconos y un service worker escrito a mano, sin dependencias. Funciona en modo avión tras la primera carga. Avisa de que hay una versión nueva. La CSP no cambia. Probado en GitHub Pages en Android e iOS. |
-| E2-2 | Unirse a un hogar | M | En el primer uso, «Ya tenemos hogar: abrir archivo» importa los datos y luego pregunta quién eres. No se crean miembros duplicados. «Quién eres» sigue en `localStorage`, por dispositivo. |
+| E2-2 | ~~Unirse a un hogar~~ **Hecho (2026-10-11)** | M | En el primer uso, «Ya tenemos hogar: abrir archivo» valida e importa los datos y luego pregunta quién eres. No se crean miembros duplicados. «Quién eres» sigue en `localStorage`, por dispositivo. **Adelanta el formato JSON y la restauración mínima de E1-3**; exportar desde Ajustes sigue pendiente allí. |
 | E2-3 | Enviar cambios | S | Genera el archivo y lo comparte con la Web Share API (WhatsApp, AirDrop); si no está disponible, lo descarga. |
 | E2-4 | **Recibir y fusionar** | L | Por cada registro gana el `updatedAt` más reciente, y los borrados se aplican. Valida todo antes de escribir y escribe en una transacción. Muestra un resumen («5 nuevos, 2 actualizados, 1 borrado») antes de confirmar. **Idempotente:** recibir el mismo archivo dos veces no cambia nada. **Convergente:** tras A→B y B→A los dos dispositivos quedan iguales. |
 | E2-5 | Estado de sincronización | S | «Última sincronización hace N días» en Ajustes. |

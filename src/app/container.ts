@@ -1,4 +1,5 @@
 import { CategoryService } from '../application/categories/category-service.ts';
+import { HouseholdService } from '../application/household/household-service.ts';
 import { ExpenseService } from '../application/expenses/expense-service.ts';
 import { PlanService } from '../application/family/plan-service.ts';
 import { IncomeService } from '../application/income/income-service.ts';
@@ -18,6 +19,7 @@ import {
   DexieSettingsRepository,
   DexieTransactionRunner,
 } from '../infrastructure/repositories/dexie-repositories.ts';
+import { DexieHouseholdArchive } from '../infrastructure/repositories/dexie-household-archive.ts';
 
 export interface AppServices {
   readonly members: MemberService;
@@ -26,6 +28,7 @@ export interface AppServices {
   readonly expenses: ExpenseService;
   readonly plan: PlanService;
   readonly personal: PersonalService;
+  readonly household: HouseholdService;
   /** "Today" and the current month for the UI; fixed in tests. */
   readonly clock: Clock;
 }
@@ -59,6 +62,7 @@ export function createApp(options: AppOptions = {}): App {
     planItems: new DexiePlanItemRepository(db),
     settings: new DexieSettingsRepository(db),
     snapshots: new DexieMonthSnapshotRepository(db),
+    householdArchive: new DexieHouseholdArchive(db),
     tx: new DexieTransactionRunner(db),
     clock,
     newId: options.newId ?? randomIdGenerator,
@@ -74,6 +78,7 @@ export function createApp(options: AppOptions = {}): App {
       expenses: new ExpenseService(ctx),
       plan,
       personal: new PersonalService(ctx, plan),
+      household: new HouseholdService(ctx),
       clock,
     },
     close: () => db.close(),

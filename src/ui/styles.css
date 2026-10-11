@@ -319,6 +319,12 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.5; }
 .onboarding__section h3 { margin: 0 0 0.25rem; font-size: 1.35rem; }
 .onboarding__nav { display: flex; justify-content: space-between; gap: 0.75rem; }
 .onboarding__nav button.primary { margin-left: auto; }
+.join-household { display: grid; gap: 0.75rem; }
+.join-household h3, .join-household__preview h4 { margin: 0; color: var(--text); font-size: 1rem; }
+.join-household__preview { display: grid; gap: 0.5rem; }
+.join-household__preview p { margin: 0; }
+.join-household__members { display: grid; gap: 0.5rem; }
+.join-household__members button { text-align: left; }
 
 @media (max-width: 899px) {
   :root { --tab-bar: 3.75rem; }
