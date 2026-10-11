@@ -21,6 +21,7 @@
   --member-teal: #5ac8fa;
   --member-mint: #00c7be;
   --member-brown: #a2845e;
+  --member-ink: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -53,6 +54,7 @@
     --member-teal: #64d2ff;
     --member-mint: #63e6e2;
     --member-brown: #ac8e68;
+    --member-ink: #000;
   }
 }
 
@@ -84,8 +86,8 @@ button.primary, form > .actions > button:first-child, .inline-form > button {
   background: var(--accent); color: var(--on-accent); border-color: var(--accent);
 }
 input, select, textarea {
-  width: 100%; padding: 0.45rem 0.55rem; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 6px;
+  width: 100%; padding: 0.7rem 0.75rem; background: var(--surface-secondary);
+  border: 0; border-radius: 0.65rem;
 }
 textarea { min-height: 4rem; resize: vertical; }
 
@@ -171,8 +173,7 @@ button:active { transform: scale(0.97); }
 .settings-section h3 { margin: 0 0 0.75rem; color: var(--text); font-size: 1rem; }
 .settings-list { display: grid; gap: 0.8rem; }
 .settings-section .field__label { color: var(--text); font-size: 0.95rem; }
-.settings-section input, .settings-section select { background: var(--surface-secondary); border: 0; border-radius: 0.65rem; padding: 0.7rem 0.75rem; }
-.settings-section input:disabled { opacity: 0.5; }
+input:disabled, select:disabled, textarea:disabled { opacity: 0.5; }
 .family-grid { display: grid; gap: 1rem; }
 .family-summary h3, .family-plan h3 { margin-top: 0; color: var(--text); font-size: 1rem; }
 .family-members { display: grid; gap: 0.8rem; }
@@ -180,7 +181,7 @@ button:active { transform: scale(0.97); }
 .family-member__name { min-width: 0; }
 .family-member > strong { white-space: nowrap; }
 .family-member > .muted { grid-column: 2 / -1; margin-top: -0.45rem; }
-.member-dot { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--member-color, var(--muted)); color: var(--member-ink, #fff); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+.member-dot { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--member-color, var(--muted)); color: var(--member-ink); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
 .family-total { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--border); }
 .family-balanced, .family-deficit { margin: 0.75rem 0 0; font-weight: 650; }
 .family-balanced p { margin: 0; }
@@ -282,7 +283,6 @@ button:active { transform: scale(0.97); }
 .sheet__grabber { display: grid; place-items: center; height: 1.75rem; margin: -1.25rem 0 0.25rem; touch-action: none; cursor: grab; }
 .sheet__grabber::before { content: ''; width: 2.25rem; height: 0.3rem; border-radius: 999px; background: var(--border); }
 .sheet h3 { margin: 0; color: var(--text); }
-.sheet input, .sheet select { background: var(--surface-secondary); border: 0; border-radius: 0.65rem; padding: 0.7rem 0.75rem; }
 @keyframes fade-in { from { opacity: 0; } }
 .shell__footer { padding-bottom: env(safe-area-inset-bottom); }
 

@@ -36,6 +36,7 @@ export const esES = {
     incomeTotal: 'Ingresos de referencia',
     planTotal: 'Total del plan',
     balanced: 'Cuadra',
+    balancedJoiner: ' + ',
     balancedSum: '{{terms}} = {{total}}',
     deficit: 'Déficit del hogar: {{amount}}',
     howItWorks: 'Cómo se calcula',

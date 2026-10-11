@@ -184,7 +184,7 @@ Paleta de sistema Apple con dos juegos completos (claro y oscuro vía `prefers-c
 - **Azul del sistema, versión AA** (`--accent`): enlaces, botón primario, pestaña y mes actuales, barras de categoría, filas de «Añadir…», botón de enviar de la captura, anillo de foco, caret y `accent-color`. En claro se oscurece respecto al azul de Apple para pasar AA sobre blanco; en oscuro usa el azul oscuro del sistema con texto negro encima (`--on-accent`).
 
 ### Tertiary
-- **Paleta de miembros** (`--member-*`, ocho claves: blue, indigo, purple, pink, orange, teal, mint, brown): identidad de cada persona del hogar en el punto de miembro y el selector de color. Se aplican solo mediante `data-color` (que fija `--member-color` y, en orange/teal/mint, tinta oscura `--member-ink`), nunca con estilos en línea.
+- **Paleta de miembros** (`--member-*`, ocho claves: blue, indigo, purple, pink, orange, teal, mint, brown): identidad de cada persona del hogar en el punto de miembro y el selector de color. Se aplican solo mediante `data-color` (que fija `--member-color` y, en orange/teal/mint, tinta oscura `--member-ink`; por defecto la tinta es blanca en claro y negra en oscuro), nunca con estilos en línea.
 
 ### Neutral
 - **Fondo agrupado** (`--bg`): lienzo de toda la app y `theme-color` del navegador.
@@ -282,7 +282,7 @@ Táctiles e inmediatos: responden al apoyar el dedo, no al soltar.
 - Títulos de tarjeta en estilo Title; totales separados por una línea `--border` con 1rem por encima.
 
 ### Inputs / Fields
-- **Style:** dentro de hojas y Ajustes, campo relleno: `--surface-secondary`, sin borde, 0.65rem de radio, 0.7rem 0.75rem de padding, 16px. Etiqueta encima en etiqueta secundaria a 0.875rem.
+- **Style:** todos los campos (hojas, Ajustes y listas de miembros/categorías), campo relleno: `--surface-secondary`, sin borde, 0.65rem de radio, 0.7rem 0.75rem de padding, 16px. Etiqueta encima en etiqueta secundaria a 0.875rem.
 - **Focus:** contorno de 2px en azul con 2px de separación (`:focus-visible`, global).
 - **Error / Disabled:** mensaje en rojo a 0.875rem bajo el campo; deshabilitado a opacidad 0.5.
 
@@ -295,7 +295,7 @@ Táctiles e inmediatos: responden al apoyar el dedo, no al soltar.
 Filas agrupadas tipo ajustes: ancho completo, título y subtítulo a la izquierda, importe en 600 y chevron de 1rem en etiqueta secundaria a la derecha, separador `--border` entre filas. Al pulsar no encogen: se iluminan con el relleno secundario (y en hover con puntero fino). La última fila «Añadir…» va en azul.
 
 ### Bottom sheet / side panel
-`<dialog>` nativo controlado por `useSheet` (`common.tsx`): foco atrapado y Esc gratis. En móvil, hoja inferior (máx. 90dvh, esquinas superiores de 1rem, grabber de 2.25rem × 0.3rem) que se arrastra 1:1 con resistencia elástica por encima, proyecta el impulso y cierra si la proyección pasa de la mitad. Desde 900px, panel derecho de 26rem. Entra y sale por el mismo borde con resorte *settle* (stiffness 322, damping 36), el lanzamiento tras arrastre usa *flick* (439 / 34) con la velocidad del dedo, y con movimiento reducido es un fundido de 200ms. Es interrumpible: se puede agarrar a mitad de animación.
+`<dialog>` nativo controlado por `useSheet` (`common.tsx`): foco atrapado y Esc gratis. En móvil, hoja inferior (máx. 90dvh, esquinas superiores de 1rem, grabber de 2.25rem × 0.3rem) que se arrastra 1:1 con resistencia elástica por encima, proyecta el impulso y cierra si la proyección pasa de la mitad. Desde 900px, panel derecho de 26rem. Las hojas son opacas y salen desde el borde (abajo en móvil, derecha en escritorio), no de la fila tocada: desvío aceptado del *Resumen de diseño*. Entra y sale por el mismo borde con resorte *settle* (stiffness 322, damping 36), el lanzamiento tras arrastre usa *flick* (439 / 34) con la velocidad del dedo, y con movimiento reducido es un fundido de 200ms. Es interrumpible: se puede agarrar a mitad de animación.
 
 ### Capture bar (signature)
 La barra del asistente: compositor en píldora sobre relleno secundario con campo transparente y botón circular azul de 2rem con flecha de envío; encima, «Registrando como …» en caption; debajo, avisos, aclaraciones e historial plegable. En móvil flota sobre las pestañas con material translúcido, 1rem de radio y sombra flotante; en escritorio se asienta al pie del rail sin material. Avisos y aclaraciones entran con transición y `@starting-style` (opacidad + 0.5rem de desplazamiento en 200ms), nunca con keyframes que se reinician.
@@ -304,7 +304,7 @@ La barra del asistente: compositor en píldora sobre relleno secundario con camp
 Barra apilada de 0.75rem en píldora (Hogar en etiqueta secundaria, Gastado en azul, Ahorro en verde) con leyenda de tres columnas; barras de categoría de 0.5rem en azul sobre pista secundaria; histórico de seis meses en barras grises con el mes actual en azul y negrita. Todo SVG/CSS nativo.
 
 ### Member dot and swatches
-Círculo de 1.75rem con la inicial en mayúscula (0.8rem, 700) sobre `--member-color`; tinta blanca por defecto y `#1c1c1e` en orange, teal y mint (`--member-ink`), en ambos modos. El selector de color es una rejilla de 4 swatches circulares de 2.5rem con anillo de selección; los colores ocupados por otro miembro quedan deshabilitados a opacidad 0.32.
+Círculo de 1.75rem con la inicial en mayúscula (0.8rem, 700) sobre `--member-color`; tinta blanca en claro y negra en oscuro por defecto (`--member-ink`), y `#1c1c1e` en orange, teal y mint en ambos modos. El selector de color es una rejilla de 4 swatches circulares de 2.5rem con anillo de selección; los colores ocupados por otro miembro quedan deshabilitados a opacidad 0.32.
 
 ### Undo notice
 Tostada fija en etiqueta invertida (`--text` de fondo, `--bg` de texto), 12px, máx. 30rem; entra con transición de opacidad y 0.5rem en 240ms.

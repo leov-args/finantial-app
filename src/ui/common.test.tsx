@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
-import { useData } from './common.tsx';
+import { shouldDismiss, useData } from './common.tsx';
 
 afterEach(cleanup);
 
@@ -22,4 +22,10 @@ it('useData ignores a slow response that arrives after a newer one (fast month s
   await act(async () => november.resolve('noviembre'));
   await act(async () => october.resolve('octubre'));
   expect(result.current.data).toBe('noviembre');
+});
+
+it('shouldDismiss closes past half the height, or when the flick projects past it', () => {
+  expect(shouldDismiss(100, 0, 400)).toBe(false); // short drag, let go still
+  expect(shouldDismiss(250, 0, 400)).toBe(true); // dragged past half
+  expect(shouldDismiss(60, 1500, 400)).toBe(true); // short but fast downward flick
 });

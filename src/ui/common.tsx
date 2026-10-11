@@ -155,6 +155,10 @@ export const useWide = (): boolean => useSyncExternalStore(subscribeWide, () => 
 const project = (velocity: number) => ((velocity / 1000) * 0.998) / (1 - 0.998);
 /** Progressive resistance when the sheet is pulled past its open position. */
 const rubberband = (overshoot: number, size: number) => (overshoot * size * 0.55) / (size + 0.55 * Math.abs(overshoot));
+/** Whether releasing the sheet at `offset` px with `velocity` px/s closes it: the projected rest passes half its height. */
+export const shouldDismiss = (offset: number, velocity: number, height: number): boolean => offset + project(velocity) > height / 2;
+/** The spring velocity is divided by the distance left; a floor keeps a fast flick from near the rest point from overshooting. */
+const MIN_TRAVEL = 20;
 const translateY = (element: HTMLElement) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m42;
 
 /**
@@ -198,7 +202,7 @@ export function useSheet(onClosed: () => void) {
       // From where the finger left it, at the finger's speed (spring velocity is on a 0–100 scale).
       const from = translateY(element);
       const to = element.offsetHeight;
-      exit = play({ transform: [`translateY(${from}px)`, `translateY(${to}px)`] }, { ...FLICK, velocity: (velocity * 100) / Math.max(1, to - from) });
+      exit = play({ transform: [`translateY(${from}px)`, `translateY(${to}px)`] }, { ...FLICK, velocity: (velocity * 100) / Math.max(MIN_TRAVEL, to - from) });
     } else exit = play({ transform: [getComputedStyle(element).transform, hidden()] }, SETTLE);
     // Even if the animation is cancelled, the sheet must still close and hand back.
     const done = () => {
@@ -233,8 +237,8 @@ export function useSheet(onClosed: () => void) {
     // A cancelled pointer carries no gesture to project: it settles by position only.
     const velocity = first && elapsed > 0 && event.type !== 'pointercancel' ? ((event.clientY - first.y) / elapsed) * 1000 : 0;
     const offset = translateY(element);
-    if (offset + project(velocity) > state.height / 2) return close(onClosed, Math.max(velocity, 1));
-    const back = { ...FLICK, velocity: offset ? (velocity * 100) / -offset : 0 };
+    if (shouldDismiss(offset, velocity, state.height)) return close(onClosed, Math.max(velocity, 1));
+    const back = { ...FLICK, velocity: offset ? (velocity * 100) / (offset > 0 ? -Math.max(offset, MIN_TRAVEL) : Math.max(-offset, MIN_TRAVEL)) : 0 };
     void play({ transform: [`translateY(${offset}px)`, 'translateY(0px)'] }, back);
   }
 
