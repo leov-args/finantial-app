@@ -1,10 +1,41 @@
 // @vitest-environment jsdom
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanupApps, eur, household, renderApp } from '../test/render-app.tsx';
 
 afterEach(cleanupApps);
+
+function stubNavigatorShare({ canShare = true, share = vi.fn().mockResolvedValue(undefined) }: { canShare?: boolean; share?: () => Promise<void> } = {}) {
+  const originalCanShare = navigator.canShare;
+  const originalShare = navigator.share;
+  Object.defineProperty(navigator, 'canShare', { value: vi.fn(() => canShare), configurable: true, writable: true });
+  Object.defineProperty(navigator, 'share', { value: share, configurable: true, writable: true });
+  return () => {
+    Object.defineProperty(navigator, 'canShare', { value: originalCanShare, configurable: true, writable: true });
+    Object.defineProperty(navigator, 'share', { value: originalShare, configurable: true, writable: true });
+  };
+}
+
+function stubDownload() {
+  const originalCreateObjectURL = URL.createObjectURL;
+  const originalRevokeObjectURL = URL.revokeObjectURL;
+  const originalClick = HTMLAnchorElement.prototype.click;
+  const clicks: { href: string; download: string }[] = [];
+  Object.defineProperty(URL, 'createObjectURL', { value: vi.fn(() => 'blob:mock-url'), configurable: true, writable: true });
+  Object.defineProperty(URL, 'revokeObjectURL', { value: vi.fn(), configurable: true, writable: true });
+  HTMLAnchorElement.prototype.click = function (this: HTMLAnchorElement) {
+    clicks.push({ href: this.href, download: this.download });
+  };
+  return {
+    clicks,
+    restore: () => {
+      Object.defineProperty(URL, 'createObjectURL', { value: originalCreateObjectURL, configurable: true, writable: true });
+      Object.defineProperty(URL, 'revokeObjectURL', { value: originalRevokeObjectURL, configurable: true, writable: true });
+      HTMLAnchorElement.prototype.click = originalClick;
+    },
+  };
+}
 
 describe('redesign shell', () => {
   it('B6: exposes Personal, Familiar and Ajustes routes', async () => {
@@ -186,6 +217,71 @@ describe('settings', () => {
       const dialog = await openInfo(user);
       expect(within(dialog).getByText('Cada persona aporta el mismo porcentaje de su ingreso.')).toBeTruthy();
       expect(within(dialog).queryByText(/÷/)).toBeNull();
+    });
+  });
+
+  describe('E2-3: send changes', () => {
+    it('shares the household file when the Web Share API is available', async () => {
+      const user = userEvent.setup();
+      const restoreShare = stubNavigatorShare();
+      const { app } = await renderApp({ route: 'ajustes', seed: async (app) => {
+        const { ana } = await household(app);
+        await app.services.members.setReferenceIncome({ id: ana.id, referenceIncome: eur(260000) });
+      }});
+      const share = vi.mocked(navigator.share);
+
+      await user.click(await screen.findByRole('button', { name: 'Enviar cambios' }));
+      expect(await screen.findByText('Archivo enviado')).toBeTruthy();
+      expect(share).toHaveBeenCalledTimes(1);
+      const shareData = share.mock.calls[0]?.[0];
+      const files = shareData && 'files' in shareData ? shareData.files : undefined;
+      const file = files?.[0];
+      expect(file).toBeInstanceOf(File);
+      expect(file?.name).toMatch(/^family-finance-\d{4}-\d{2}-\d{2}\.json$/);
+      expect(file?.type).toBe('application/json');
+      if (!(file instanceof File)) throw new Error('Expected a File');
+      expect(app.services.household.preview(await file.text()).summary.memberNames).toEqual(['Ana', 'Pareja']);
+
+      restoreShare();
+    });
+
+    it('downloads the file when sharing files is not available', async () => {
+      const user = userEvent.setup();
+      const restoreShare = stubNavigatorShare({ canShare: false });
+      const { clicks, restore } = stubDownload();
+      await renderApp({ route: 'ajustes', seed: household });
+
+      await user.click(await screen.findByRole('button', { name: 'Enviar cambios' }));
+      expect(await screen.findByText('Archivo descargado')).toBeTruthy();
+      expect(clicks).toHaveLength(1);
+      expect(clicks[0]?.href).toBe('blob:mock-url');
+      expect(clicks[0]?.download).toMatch(/^family-finance-\d{4}-\d{2}-\d{2}\.json$/);
+
+      restore();
+      restoreShare();
+    });
+
+    it('does not show an error when the user cancels the share sheet', async () => {
+      const user = userEvent.setup();
+      const restoreShare = stubNavigatorShare({ share: vi.fn().mockRejectedValue(new DOMException('Share canceled', 'AbortError')) });
+      await renderApp({ route: 'ajustes', seed: household });
+
+      await user.click(await screen.findByRole('button', { name: 'Enviar cambios' }));
+      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+      expect(screen.queryByText('Ha ocurrido un error')).toBeNull();
+
+      restoreShare();
+    });
+
+    it('shows a translated error when sharing fails for a real reason', async () => {
+      const user = userEvent.setup();
+      const restoreShare = stubNavigatorShare({ share: vi.fn().mockRejectedValue(new Error('Network failure')) });
+      await renderApp({ route: 'ajustes', seed: household });
+
+      await user.click(await screen.findByRole('button', { name: 'Enviar cambios' }));
+      expect(await screen.findByText('Ha ocurrido un error')).toBeTruthy();
+
+      restoreShare();
     });
   });
 });

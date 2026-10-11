@@ -1,6 +1,6 @@
 # Backup y restauración
 
-El formato del backup y del hogar es el mismo JSON. **E2-2 adelanta el formato y la restauración mínima al primer uso** para poder pasar un hogar a otro móvil. La exportación desde Ajustes sigue pendiente de E1-3.
+El formato del backup y del hogar es el mismo JSON. **E2-2 adelanta el formato y la restauración mínima al primer uso** para poder pasar un hogar a otro móvil. **E2-3 añade la exportación desde Ajustes**: genera el archivo y lo comparte con la Web Share API, o lo descarga si no está disponible. Todavía no incluye tombstones (E1-2) ni recibos.
 
 ## Formato (`formatVersion: 1`)
 

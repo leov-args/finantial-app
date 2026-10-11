@@ -180,7 +180,12 @@ export const esES = {
     ruleInfoAssigned: 'Las líneas asignadas no entran en los gastos comunes a repartir: las paga entera quien las tiene y solo bajan lo que le queda.',
     ruleInfoAssignedRate: 'Con ellas, el porcentaje total de cada uno puede ser distinto.',
     storageTitle: 'Almacenamiento',
-    storageDescription: 'Todo se queda en este navegador. No hay copia de seguridad automática todavía.',
+    storageDescription: 'Todo se queda en este navegador. Envía una copia manual desde la sección anterior.',
+    shareTitle: 'Enviar cambios',
+    shareDescription: 'Genera un archivo con los datos del hogar para compartirlo con otro dispositivo.',
+    sendChanges: 'Enviar cambios',
+    changesSent: 'Archivo enviado',
+    changesDownloaded: 'Archivo descargado',
   },
   onboarding: {
     title: 'Bienvenido a Family Finance',

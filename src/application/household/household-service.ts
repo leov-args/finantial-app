@@ -1,3 +1,4 @@
+import { toLocalIsoDate } from '../../domain/shared/dates.ts';
 import type { HouseholdArchiveReadResult, ParsedHousehold } from '../ports/household-archive.ts';
 import { HouseholdArchiveError } from '../ports/household-archive.ts';
 import type { AppContext } from '../shared/context.ts';
@@ -12,6 +13,13 @@ export class HouseholdService {
     } catch (error) {
       throw this.toApplicationError(error);
     }
+  }
+
+  async exportFile(): Promise<{ filename: string; text: string }> {
+    const createdAt = this.ctx.clock.now();
+    const text = await this.ctx.householdArchive.export(createdAt);
+    const date = toLocalIsoDate(createdAt);
+    return { filename: `family-finance-${date}.json`, text };
   }
 
   async join(parsed: ParsedHousehold): Promise<void> {

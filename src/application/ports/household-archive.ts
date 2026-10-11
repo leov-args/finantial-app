@@ -30,5 +30,6 @@ export class HouseholdArchiveError extends Error {
 
 export interface HouseholdArchive {
   read(text: string): HouseholdArchiveReadResult;
+  export(createdAt: Date): Promise<string>;
   replaceAll(parsed: ParsedHousehold): Promise<void>;
 }
