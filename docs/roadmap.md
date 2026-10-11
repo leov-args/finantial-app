@@ -53,7 +53,7 @@ El archivo de backup y el de sincronización son **el mismo formato**: restaurar
 |---|---|---|---|
 | E2-1 | PWA instalable y offline | M | Manifest, iconos y un service worker escrito a mano, sin dependencias. Funciona en modo avión tras la primera carga. Avisa de que hay una versión nueva. La CSP no cambia. Probado en GitHub Pages en Android e iOS. |
 | E2-2 | ~~Unirse a un hogar~~ **Hecho (2026-10-11)** | M | En el primer uso, «Ya tenemos hogar: abrir archivo» valida e importa los datos y luego pregunta quién eres. No se crean miembros duplicados. «Quién eres» sigue en `localStorage`, por dispositivo. **Adelanta el formato JSON y la restauración mínima de E1-3**; exportar desde Ajustes sigue pendiente allí. |
-| E2-3 | Enviar cambios | S | Genera el archivo y lo comparte con la Web Share API (WhatsApp, AirDrop); si no está disponible, lo descarga. |
+| E2-3 | ~~Enviar cambios~~ **Hecho (2026-10-12)** | S | Genera el archivo y lo comparte con la Web Share API (WhatsApp, AirDrop); si no está disponible, lo descarga. **Adelanta la exportación de E1-3** (sin tombstones todavía). Pendiente: probar el diálogo de compartir en un móvil real; hacer E1-2 antes de E2-4 para que la fusión pueda aplicar borrados. |
 | E2-4 | **Recibir y fusionar** | L | Por cada registro gana el `updatedAt` más reciente, y los borrados se aplican. Valida todo antes de escribir y escribe en una transacción. Muestra un resumen («5 nuevos, 2 actualizados, 1 borrado») antes de confirmar. **Idempotente:** recibir el mismo archivo dos veces no cambia nada. **Convergente:** tras A→B y B→A los dos dispositivos quedan iguales. |
 | E2-5 | Estado de sincronización | S | «Última sincronización hace N días» en Ajustes. |
 
