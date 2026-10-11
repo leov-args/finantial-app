@@ -42,8 +42,8 @@ Todo tamaño S.
 | Id | Ítem | Tamaño | Criterio de aceptación |
 |---|---|---|---|
 | E1-1 | ~~**Historial del plan y de los ingresos de referencia**~~ **Hecho (2026-10-11)** | L | Cambiar el plan o un ingreso en el mes N no altera ningún mes anterior a N, ni en Personal ni en Familiar. Versión de esquema nueva con su test (sin datos que migrar: nadie usa la app aún). *Decidido (2026-10-11):* instantáneas automáticas de las entradas del mes antes de cada cambio, sin acción del usuario; spec en `docs/spec-historial-plan.md`. Familiar gana selector de mes. |
-| E1-2 | Borrados con marca (*tombstones*) | S–M | Tabla nueva `tombstones {table, id, deletedAt}` escrita en la misma transacción que el borrado; deshacer la quita. Las consultas actuales no cambian. Migración con su test. |
-| E1-3 | Backup: exportar y restaurar (reemplazar) | M | **Formato y restauración mínima adelantados por E2-2** (mismo JSON de records, sin ZIP ni recibos). Pendiente: exportar desde Ajustes e incluir los tombstones de E1-2. `docs/backup.md` define el contrato compartido. |
+| E1-2 | ~~Borrados con marca (*tombstones*)~~ **Hecho (2026-10-12)** | S–M | Tabla nueva `tombstones {table, id, deletedAt}` escrita en la misma transacción que el borrado; deshacer la quita. Las consultas actuales no cambian. Migración con su test. Spec: `docs/spec-tombstones.md`. Nothing reads tombstones yet (E2-4 applies them). |
+| E1-3 | ~~Backup: exportar y restaurar (reemplazar)~~ **Hecho (2026-10-12)** | M | **Formato y restauración mínima adelantados por E2-2** (mismo JSON de records, sin ZIP ni recibos). Pendiente: exportar desde Ajustes e incluir los tombstones de E1-2. `docs/backup.md` define el contrato compartido. Spec: `docs/spec-backup.md`. Files carry tombstones (`dbVersion` 3) and Ajustes restores by replacing all data. Pending: try the share dialog on a real phone; garbage-collecting old tombstones (decide with E2-4). |
 
 ## Etapa 2: Dos móviles
 
