@@ -186,6 +186,12 @@ export const esES = {
     sendChanges: 'Enviar cambios',
     changesSent: 'Archivo enviado',
     changesDownloaded: 'Archivo descargado',
+    backupTitle: 'Copia de seguridad',
+    backupDescription: 'Abre una copia guardada para reemplazar los datos de este dispositivo.',
+    backupChooseFile: 'Abrir copia de seguridad',
+    backupReplaceWarning: 'Todos los datos de este dispositivo se reemplazarán. Envía antes los datos actuales si quieres conservarlos.',
+    backupSendFirst: 'Puedes enviar los datos actuales desde «Enviar cambios» antes de reemplazarlos.',
+    backupReplace: 'Reemplazar mis datos',
   },
   onboarding: {
     title: 'Bienvenido a Family Finance',

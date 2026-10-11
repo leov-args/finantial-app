@@ -3,6 +3,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanupApps, eur, household, renderApp } from '../test/render-app.tsx';
+import { makeHouseholdFile, makeRestorableHouseholdFile } from '../test/household-file.ts';
 
 afterEach(cleanupApps);
 
@@ -282,6 +283,65 @@ describe('settings', () => {
       expect(await screen.findByText('Ha ocurrido un error')).toBeTruthy();
 
       restoreShare();
+    });
+  });
+
+  describe('E1-3: restore a backup', () => {
+    it('previews, rejects invalid files and cancels without writing, then replaces data and refreshes Personal', async () => {
+      const user = userEvent.setup();
+      const { app } = await renderApp({ route: 'ajustes', seed: household });
+      const originalMembers = await app.services.members.list();
+      const partner = originalMembers.find((member) => member.name === 'Pareja');
+      if (!partner) throw new Error('Partner fixture missing');
+      await user.selectOptions(await screen.findByLabelText('¿Quién eres en este dispositivo?'), partner.id);
+
+      const originalData = {
+        members: await app.db.members.toArray(), categories: await app.db.categories.toArray(),
+        incomes: await app.db.incomes.toArray(), expenses: await app.db.expenses.toArray(), planItems: await app.db.planItems.toArray(),
+        settings: await app.db.settings.toArray(), monthSnapshots: await app.db.monthSnapshots.toArray(), tombstones: await app.db.tombstones.toArray(),
+      };
+      const input = await screen.findByLabelText('Abrir copia de seguridad');
+      await user.upload(input, new File(['{'], 'invalid.json', { type: 'application/json' }));
+      expect(await screen.findByRole('alert')).toBeTruthy();
+      expect({
+        members: await app.db.members.toArray(), categories: await app.db.categories.toArray(),
+        incomes: await app.db.incomes.toArray(), expenses: await app.db.expenses.toArray(), planItems: await app.db.planItems.toArray(),
+        settings: await app.db.settings.toArray(), monthSnapshots: await app.db.monthSnapshots.toArray(), tombstones: await app.db.tombstones.toArray(),
+      }).toEqual(originalData);
+
+      const backup = makeRestorableHouseholdFile();
+      await user.upload(input, new File([backup], 'backup.json', { type: 'application/json' }));
+      expect(await screen.findByText('Miembros: Hogar restaurado')).toBeTruthy();
+      expect(screen.getByText('Todos los datos de este dispositivo se reemplazarán. Envía antes los datos actuales si quieres conservarlos.')).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Reemplazar mis datos' })).toBeTruthy();
+      await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+      expect({
+        members: await app.db.members.toArray(), categories: await app.db.categories.toArray(),
+        incomes: await app.db.incomes.toArray(), expenses: await app.db.expenses.toArray(), planItems: await app.db.planItems.toArray(),
+        settings: await app.db.settings.toArray(), monthSnapshots: await app.db.monthSnapshots.toArray(), tombstones: await app.db.tombstones.toArray(),
+      }).toEqual(originalData);
+
+      await user.upload(input, new File([backup], 'backup.json', { type: 'application/json' }));
+      await user.click(await screen.findByRole('button', { name: 'Reemplazar mis datos' }));
+      await waitFor(async () => expect((await app.services.members.list()).map((member) => member.name)).toEqual(['Hogar restaurado']));
+      expect(localStorage.getItem('family-finance.me')).toBeNull();
+      expect(await app.services.categories.list()).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'restored-category', name: 'Categoría restaurada' })]));
+
+      await user.click(screen.getByRole('link', { name: 'Personal' }));
+      expect(await screen.findByText('Gasto restaurado')).toBeTruthy();
+    });
+
+    it('keeps the device identity when that member remains active in the restored household', async () => {
+      const user = userEvent.setup();
+      const { app } = await renderApp({ route: 'ajustes', seed: household });
+      const ana = (await app.services.members.list()).find((member) => member.name === 'Ana');
+      if (!ana) throw new Error('Ana fixture missing');
+      await user.selectOptions(await screen.findByLabelText('¿Quién eres en este dispositivo?'), ana.id);
+      const backup = makeHouseholdFile(['Ana restaurada']);
+      await user.upload(await screen.findByLabelText('Abrir copia de seguridad'), new File([backup], 'backup.json', { type: 'application/json' }));
+      await user.click(await screen.findByRole('button', { name: 'Reemplazar mis datos' }));
+
+      await waitFor(() => expect(localStorage.getItem('family-finance.me')).toBe(ana.id));
     });
   });
 });

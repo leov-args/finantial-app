@@ -30,6 +30,14 @@ export class HouseholdService {
     }
   }
 
+  async restore(parsed: ParsedHousehold): Promise<void> {
+    try {
+      await this.ctx.tx.run(() => this.ctx.householdArchive.restore(parsed));
+    } catch (error) {
+      throw this.toApplicationError(error);
+    }
+  }
+
   private toApplicationError(error: unknown): unknown {
     if (!(error instanceof HouseholdArchiveError)) return error;
     switch (error.failure) {

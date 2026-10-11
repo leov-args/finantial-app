@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
 import { type Member, MEMBER_COLORS } from '../domain/member/member.ts';
 import type { Money } from '../domain/money/money.ts';
-import { useData, useMe, amountText, readIncome, Field, FormError } from './common.tsx';
+import { useData, useMe, storedMeId, amountText, readIncome, Field, FormError } from './common.tsx';
 import { CategoriesView, MembersView } from './NameListView.tsx';
+import { BackupSection } from './BackupSection.tsx';
 import { Icon } from './icons.tsx';
 import { RuleInfoSheet } from './RuleInfoSheet.tsx';
 import { shareFile } from './share-file.ts';
@@ -61,6 +62,13 @@ export function SettingsView() {
     } catch (e) {
       fail('share', toErrors(e));
     }
+  }
+
+  async function afterRestore() {
+    const storedMe = storedMeId();
+    const restoredMembers = await services.members.listActive();
+    if (storedMe !== null && !restoredMembers.some((member) => member.id === storedMe)) setMe(null);
+    reload();
   }
 
   // Only edited members are written: an untouched field must never clear a saved income.
@@ -185,6 +193,8 @@ export function SettingsView() {
           {feedback('share')}
         </div>
       </section>
+
+      <BackupSection onRestored={afterRestore} />
 
       <section className="panel settings-section">
         <h3>{t('ui.storageTitle')}</h3>

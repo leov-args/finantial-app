@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { asTimestamp } from '../../domain/shared/dates.ts';
 import { CURRENT_DB_VERSION } from '../database/migrations.ts';
 import { parseHouseholdFile, serializeHousehold } from './household-file.ts';
 
@@ -26,6 +27,7 @@ const data = {
   planItems: [],
   settings: [],
   monthSnapshots: [],
+  tombstones: [],
 };
 const householdFile = (overrides: Record<string, unknown> = {}) => ({
   format: 'family-finance-household',
@@ -90,8 +92,35 @@ describe('household file', () => {
       members: data.members, categories: data.categories, incomes: data.incomes, expenses: data.expenses,
       planItems: data.planItems, settings: data.settings,
     };
-    expect(() => parseHouseholdFile(JSON.stringify(householdFile({ dbVersion: 1, data: olderData })))).not.toThrow();
+    expect(() => parseHouseholdFile(JSON.stringify(householdFile({ dbVersion: 2, data: olderData })))).not.toThrow();
     expect(() => parseHouseholdFile(JSON.stringify(householdFile({ data: olderData })))).toThrow();
+    expect(parseHouseholdFile(JSON.stringify(householdFile({ dbVersion: 2, data: olderData }))).parsed).toMatchObject({ tombstones: [] });
+  });
+
+  it('requires tombstones in a v3 file', () => {
+    const { tombstones, ...v3Data } = data;
+    expect(tombstones).toEqual([]);
+    expect(() => parseHouseholdFile(JSON.stringify(householdFile({ data: v3Data })))).toThrow(invalid);
+  });
+
+  it('round-trips tombstones from the household file', () => {
+    const tombstones = [{ table: 'members' as const, id: 'deleted-member', deletedAt: asTimestamp('2026-10-02T10:00:00.000Z') }];
+    const text = serializeHousehold({ ...data, tombstones }, new Date('2026-10-11T10:00:00.000Z'));
+
+    expect(JSON.parse(text)).toMatchObject({ data: { tombstones } });
+    expect(parseHouseholdFile(text).parsed).toMatchObject({ tombstones });
+  });
+
+  it.each([
+    ['unknown table', [{ table: 'settings', id: 'deleted', deletedAt: '2026-10-02T10:00:00.000Z' }]],
+    ['invalid UTC timestamp', [{ table: 'members', id: 'deleted', deletedAt: '2026-10-02T10:00:00+01:00' }]],
+    ['duplicate table and id', [
+      { table: 'members', id: 'deleted', deletedAt: '2026-10-02T10:00:00.000Z' },
+      { table: 'members', id: 'deleted', deletedAt: '2026-10-03T10:00:00.000Z' },
+    ]],
+    ['a tombstone for a live record', [{ table: 'members', id: member.id, deletedAt: '2026-10-02T10:00:00.000Z' }]],
+  ])('rejects tombstones with %s', (_name, tombstones) => {
+    expect(() => parseHouseholdFile(JSON.stringify(householdFile({ data: { ...data, tombstones } })))).toThrow(invalid);
   });
 });
 

@@ -279,14 +279,18 @@ export function readIncome(input: string): Money | null | undefined {
 const ME_STORAGE_KEY = 'family-finance.me';
 const ME_CHANGED_EVENT = 'family-finance:me-changed';
 
+export function storedMeId(): MemberId | null {
+  try {
+    return localStorage.getItem(ME_STORAGE_KEY) as MemberId | null;
+  } catch {
+    return null;
+  }
+}
+
 /** Device-only preference; it is deliberately not part of IndexedDB or backups. */
 export function useMe(members: readonly Member[]): [MemberId | null, (id: MemberId | null) => void] {
   const [me, setMeState] = useState<MemberId | null>(() => {
-    try {
-      return localStorage.getItem(ME_STORAGE_KEY) as MemberId | null;
-    } catch {
-      return null;
-    }
+    return storedMeId();
   });
   useEffect(() => {
     const onMeChanged = (event: Event) => {
@@ -331,4 +335,3 @@ export const shortMonthLabel = (month: YearMonth): string => new Intl.DateTimeFo
 export const dayLabel = (date: IsoDate): string => new Intl.DateTimeFormat(getLocale(), { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(utc(date));
 /** Display-only percentage from basis points (7273 → "72,7 %"). */
 export const percent = (basisPoints: BasisPoints): string => new Intl.NumberFormat(getLocale(), { style: 'percent', maximumFractionDigits: 1 }).format(basisPoints / 10_000);
-
