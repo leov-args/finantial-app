@@ -128,6 +128,7 @@ describe('family', () => {
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
 
     expect(within(await planRow('Portátil')).getByText(/350,00/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Abrir línea Portátil.*asignada: Ana: .*300,00.*Pareja: .*50,00/ })).toBeTruthy();
   });
 
   it('F2: marks the share that is not a valid amount', async () => {

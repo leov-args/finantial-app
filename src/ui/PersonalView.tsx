@@ -174,7 +174,7 @@ function PersonalMonthView({
               <button
                 type="button"
                 className="plan-row"
-                aria-label={t('personal.openExpense', { name: expense.description, amount: format(expense.amount) })}
+                aria-label={t('personal.openExpense', { name: expense.description, amount: format(expense.amount), date: dayLabel(expense.date), category: categoryNames.get(expense.categoryId) ?? '' })}
                 onClick={() => setEditing(expense)}
               >
                 <span className="row__main">

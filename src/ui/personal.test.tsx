@@ -3,9 +3,9 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { format, money } from '../domain/money/money.ts';
-import { asYearMonth } from '../domain/shared/dates.ts';
+import { asIsoDate, asYearMonth } from '../domain/shared/dates.ts';
 import { cleanupApps, eur, household, renderApp } from '../test/render-app.tsx';
-import { percent } from './common.tsx';
+import { dayLabel, percent } from './common.tsx';
 
 afterEach(cleanupApps);
 
@@ -186,7 +186,9 @@ describe('personal', () => {
       },
     });
 
-    await user.click(await screen.findByRole('button', { name: /^Abrir gasto Café/ }));
+    const row = await screen.findByRole('button', { name: /^Abrir gasto Café/ });
+    expect(row.getAttribute('aria-label')).toContain(`${dayLabel(asIsoDate('2026-10-02'))}, Comida`);
+    await user.click(row);
     const expenseForm = within(screen.getByRole('form', { name: 'Editar gasto personal' }));
     await user.clear(expenseForm.getByLabelText('Importe'));
     await user.type(expenseForm.getByLabelText('Importe'), '30');

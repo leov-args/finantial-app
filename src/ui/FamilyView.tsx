@@ -162,28 +162,31 @@ export function PlanList({ items, members, reload }: { items: FamilyData['items'
       )}
       {items.length === 0 && <p className="muted">{t('family.emptyPlan')}</p>}
       <ul className="list plan-list">
-        {items.map(({ item, amount }) => (
-          <li key={item.id}>
-            <button
-              type="button"
-              className="plan-row"
-              aria-label={t('family.openLine', { name: item.name, amount: format(amount) })}
-              onClick={() => setEditing(item)}
-            >
-              <span className="row__main">
-                <span>{item.name}</span>
-                {item.kind.type === 'ASSIGNED' && (
-                  <span className="muted small">
-                    {item.kind.shares.map((share) => `${names.get(share.memberId)?.name ?? share.memberId}: ${format(share.amount)}`).join(' · ')}
-                  </span>
-                )}
-              </span>
-              {item.kind.type === 'ASSIGNED' && <span className="assigned-badge">{t('family.assigned')}</span>}
-              <span className="row__amount">{format(amount)}</span>
-              <Icon name="forward" />
-            </button>
-          </li>
-        ))}
+        {items.map(({ item, amount }) => {
+          const shares = item.kind.type === 'ASSIGNED'
+            ? item.kind.shares.map((share) => `${names.get(share.memberId)?.name ?? share.memberId}: ${format(share.amount)}`).join(' · ')
+            : '';
+          return (
+            <li key={item.id}>
+              <button
+                type="button"
+                className="plan-row"
+                aria-label={shares
+                  ? t('family.openLineAssigned', { name: item.name, amount: format(amount), shares: shares.replaceAll(' · ', '; ') })
+                  : t('family.openLine', { name: item.name, amount: format(amount) })}
+                onClick={() => setEditing(item)}
+              >
+                <span className="row__main">
+                  <span>{item.name}</span>
+                  {shares && <span className="muted small">{shares}</span>}
+                </span>
+                {item.kind.type === 'ASSIGNED' && <span className="assigned-badge">{t('family.assigned')}</span>}
+                <span className="row__amount">{format(amount)}</span>
+                <Icon name="forward" />
+              </button>
+            </li>
+          );
+        })}
         <li>
           <button type="button" className="add-line-row" onClick={() => setEditing(null)}>{t('family.addCommonExpense')}</button>
         </li>

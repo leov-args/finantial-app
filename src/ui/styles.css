@@ -361,6 +361,7 @@ button:active { transform: scale(0.97); }
 /* Reduced motion keeps feedback and fades, but nothing moves: presses dim instead of shrinking. */
 @media (prefers-reduced-motion: reduce) {
   button:active { transform: none; opacity: 0.6; }
+  .family-explanation summary .icon { transition: none; }
   .undo, .capture-bar__notice, .capture-bar__clarification { transition-property: opacity; }
 }
 @media (prefers-reduced-transparency: reduce) {
