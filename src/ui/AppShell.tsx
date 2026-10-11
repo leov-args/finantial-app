@@ -40,7 +40,7 @@ export function AppShell({ persistence }: { persistence: PersistenceStatus }) {
   const route = useSyncExternalStore(subscribe, currentRoute);
   const thisMonth = yearMonthOf(toLocalIsoDate(clock.now()));
   const [month, setMonth] = useState(thisMonth);
-  const monthly = route === 'personal';
+  const monthly = route === 'personal' || route === 'familiar';
 
   const loadMembers = useCallback(() => members.list(), [members]);
   const household = useData(loadMembers);
@@ -94,7 +94,7 @@ export function AppShell({ persistence }: { persistence: PersistenceStatus }) {
         ) : (
           <>
             {route === 'personal' && <PersonalView month={month} />}
-            {route === 'familiar' && <FamilyView />}
+            {route === 'familiar' && <FamilyView month={month} closed={month < thisMonth} />}
             {route === 'ajustes' && <SettingsView />}
           </>
         )}

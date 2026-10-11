@@ -167,6 +167,22 @@ UI, textos de error de aplicación y documentación en español; identificadores
 - **Los datos no migran entre orígenes:** lo guardado en `localhost` no aparece en la versión publicada, ni al revés. Hasta el backup (fase 8) no hay forma de pasarlos.
 - **Repo privado:** Pages en repos privados requiere un plan de pago de GitHub; con repo público el código queda visible (los datos no, viven en el navegador).
 
+## ADR-022 · Instantáneas de mes para no reescribir la historia — Aceptada (2026-10-11)
+
+**Contexto.** Los meses pasados se calculaban con el plan, los ingresos de referencia, los miembros activos y la regla de reparto *actuales*, así que cambiar cualquiera reescribía la historia (E1-1).
+
+**Decisión.** Tabla `monthSnapshots` (esquema v2, clave `month`) con las **entradas** del reparto de un mes terminado: miembros (`active`, ingreso de referencia), líneas del plan y regla. Se guardan automáticamente, dentro de la misma transacción, justo antes de cualquier cambio de plan, miembros, ingreso de referencia o regla (`freezePastMonths`). El mes en curso nunca se congela y no hay acción del usuario. Los resultados no se guardan: `PlanService.monthView(month)` recalcula con `contributions()` desde la instantánea, o desde el estado vivo si el mes no tiene.
+
+**Alternativas descartadas.** Vigencia por fecha por línea e ingreso (A): no cubre `active` ni `splitRule`, duplica el modelo y complica la fusión de E2-4.
+
+**Consecuencias.** Un cambio a mitad de mes vale para el mes entero en curso. Las instantáneas son inmutables y los meses cerrados son de solo lectura en Familiar; un error del pasado se corrige en el mes siguiente. Los nombres y colores de los miembros no se congelan: un miembro borrado después aparece como «Antiguo miembro» en los meses que lo incluyen.
+
+**Límites aceptados (revisión de código, 2026-10-11).**
+- «Sin instantánea» significa «sin cambios desde entonces», y solo se cumple mientras toda mutación que alimenta el reparto llame antes a `freezePastMonths`. Código nuevo que guarde miembros o líneas fuera de esos servicios debe hacerlo.
+- Un gasto o ingreso con fecha anterior a todas las instantáneas, añadido después de cambiar el plan, hace que el siguiente congelado rellene ese hueco con el estado ya cambiado.
+- Una fecha mal escrita muy antigua (p. ej. 2002 por 2026) crea una instantánea por mes hasta hoy en el siguiente cambio. Sin tope por ahora.
+- Familiar bloquea la edición de **todo** mes anterior al actual, tenga o no instantánea (si no la tiene, se congelaría al guardar y la vista editada dejaría de coincidir). Un mes futuro es editable y usa el estado vivo.
+
 ## Decisiones abiertas
 
 | # | Pregunta | Cuándo |

@@ -4,15 +4,17 @@ import {
   type HouseholdSettings,
   type Participant,
   SPLIT_RULES,
+  type SplitRule,
   contributions,
 } from '../../domain/family/contributions.ts';
 import { type PlanItem, type PlanItemKind, buildPlanItem, planItemAmount, updatePlanItem } from '../../domain/family/plan.ts';
-import type { Member } from '../../domain/member/member.ts';
+import type { SnapshotMember } from '../../domain/family/snapshot.ts';
 import { type CurrencyCode, DEFAULT_CURRENCY, asCurrencyCode } from '../../domain/money/currency.ts';
 import { type Money, money } from '../../domain/money/money.ts';
-import { toTimestamp } from '../../domain/shared/dates.ts';
+import { type YearMonth, toLocalIsoDate, toTimestamp, yearMonthOf } from '../../domain/shared/dates.ts';
 import { asMemberId, asPlanItemId } from '../../domain/shared/ids.ts';
 import type { AppContext } from '../shared/context.ts';
+import { freezePastMonths } from '../shared/snapshots.ts';
 import { ApplicationError, type FieldIssue, notFound } from '../shared/errors.ts';
 import { idSchema, moneySchema, nameSchema, parseInput } from '../shared/schemas.ts';
 
@@ -44,7 +46,7 @@ function toKind(input: z.output<typeof kindSchema>): PlanItemKind {
 }
 
 /** Active members with a reference income: the people the plan is split between (A2). */
-const participantsOf = (members: readonly Member[]): Participant[] =>
+export const participantsOf = (members: readonly SnapshotMember[]): Participant[] =>
   members.flatMap((m) => (m.active && m.referenceIncome ? [{ memberId: m.id, income: m.referenceIncome }] : []));
 
 /** The shared monthly plan (F1–F3) and how it is split (F4, F5, A7). */
@@ -63,6 +65,7 @@ export class PlanService {
   async create(input: CreatePlanItemInput): Promise<PlanItem> {
     const p = parseInput(createSchema, input);
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       const now = toTimestamp(this.ctx.clock.now());
       const item = buildPlanItem({ id: asPlanItemId(this.ctx.newId()), name: p.name, kind: toKind(p.kind), createdAt: now, updatedAt: now });
       await this.checkShares(item);
@@ -74,6 +77,7 @@ export class PlanService {
   async update(input: UpdatePlanItemInput): Promise<{ previous: PlanItem; current: PlanItem }> {
     const { id, changes } = parseInput(updateSchema, input);
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       const previous = await this.ctx.planItems.getById(asPlanItemId(id));
       if (!previous) throw notFound('Plan item', id);
       const current = updatePlanItem(
@@ -90,6 +94,7 @@ export class PlanService {
   async delete(rawId: string): Promise<PlanItem> {
     const id = asPlanItemId(parseInput(idSchema, rawId));
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       const item = await this.ctx.planItems.getById(id);
       if (!item) throw notFound('Plan item', id);
       await this.ctx.planItems.delete(id);
@@ -101,20 +106,36 @@ export class PlanService {
   async restore(snapshot: PlanItem): Promise<PlanItem> {
     const item = buildPlanItem(snapshot);
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       await this.checkShares(item);
       await this.ctx.planItems.save(item);
       return item;
     });
   }
 
+  /**
+   * The split inputs of a month (E1-1): the snapshot of a finished month that
+   * has one, the live state otherwise. The UI never computes the split itself.
+   */
+  async monthView(
+    month?: YearMonth,
+    currency: CurrencyCode = DEFAULT_CURRENCY,
+  ): Promise<{ members: readonly SnapshotMember[]; items: Array<{ item: PlanItem; amount: Money }>; splitRule: SplitRule; split: FamilySplit }> {
+    const snapshot = month && month < yearMonthOf(toLocalIsoDate(this.ctx.clock.now())) ? await this.ctx.snapshots.getByMonth(month) : undefined;
+    const [members, items, splitRule] = snapshot
+      ? [snapshot.members, snapshot.planItems, snapshot.splitRule]
+      : await Promise.all([this.ctx.members.getAll(), this.list(), this.ctx.settings.getHousehold().then((s) => s.splitRule)]);
+    return {
+      members,
+      items: items.map((item) => ({ item, amount: planItemAmount(item) })),
+      splitRule,
+      split: contributions(participantsOf(members), items, splitRule, currency),
+    };
+  }
+
   /** Contributions for the stored plan, incomes and split rule. The UI never computes these itself. */
   async contributions(currency: CurrencyCode = DEFAULT_CURRENCY): Promise<FamilySplit> {
-    const [members, items, settings] = await Promise.all([
-      this.ctx.members.getAll(),
-      this.ctx.planItems.getAll(),
-      this.ctx.settings.getHousehold(),
-    ]);
-    return contributions(participantsOf(members), items, settings.splitRule, currency);
+    return (await this.monthView(undefined, currency)).split;
   }
 
   getSettings(): Promise<HouseholdSettings> {
@@ -124,8 +145,11 @@ export class PlanService {
   async setSplitRule(input: { splitRule: string }): Promise<HouseholdSettings> {
     const { splitRule } = parseInput(settingsSchema, input);
     const settings: HouseholdSettings = Object.freeze({ splitRule });
-    await this.ctx.settings.saveHousehold(settings);
-    return settings;
+    return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
+      await this.ctx.settings.saveHousehold(settings);
+      return settings;
+    });
   }
 
   /**

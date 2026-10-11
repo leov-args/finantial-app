@@ -15,6 +15,7 @@ import { money } from '../../domain/money/money.ts';
 import { toTimestamp } from '../../domain/shared/dates.ts';
 import { type MemberId, asMemberId } from '../../domain/shared/ids.ts';
 import type { AppContext } from '../shared/context.ts';
+import { freezePastMonths } from '../shared/snapshots.ts';
 import { ApplicationError, notFound } from '../shared/errors.ts';
 import { idSchema, moneySchema, nameSchema, parseInput } from '../shared/schemas.ts';
 
@@ -40,6 +41,7 @@ export class MemberService {
   async create(input: CreateMemberInput): Promise<Member> {
     const { name } = parseInput(createSchema, input);
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       const member = createMember({
         id: asMemberId(this.ctx.newId()),
         name,
@@ -65,6 +67,7 @@ export class MemberService {
   async setActive(input: { id: string; active: boolean }): Promise<Member> {
     const { id, active } = parseInput(activeSchema, input);
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       const member = await this.require(asMemberId(id));
       if (!active) await this.refuseIfHasShares(member, 'MEMBER_SHARES_BLOCK_DEACTIVATE');
       const now = toTimestamp(this.ctx.clock.now());
@@ -83,6 +86,7 @@ export class MemberService {
   async delete(rawId: string): Promise<Member> {
     const id = asMemberId(parseInput(idSchema, rawId));
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       const member = await this.require(id);
       const references =
         (await this.ctx.expenses.countByMember(id)) +
@@ -105,6 +109,7 @@ export class MemberService {
   async setReferenceIncome(input: { id: string; referenceIncome: { amountMinor: number; currency: string } | null }): Promise<Member> {
     const { id, referenceIncome } = parseInput(incomeSchema, input);
     return this.ctx.tx.run(async () => {
+      await freezePastMonths(this.ctx);
       const member = await this.require(asMemberId(id));
       if (!referenceIncome) await this.refuseIfHasShares(member, 'MEMBER_SHARES_BLOCK_CLEAR_INCOME');
       const updated = setReferenceIncome(

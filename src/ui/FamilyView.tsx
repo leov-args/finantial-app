@@ -1,16 +1,17 @@
 import { useCallback, useState } from 'react';
+import type { YearMonth } from '../domain/shared/dates.ts';
 import { format, subtract } from '../domain/money/money.ts';
 import type { Money } from '../domain/money/money.ts';
 import type { Member } from '../domain/member/member.ts';
 import type { PlanItem } from '../domain/family/plan.ts';
-import type { Contribution, FamilySplit, HouseholdSettings } from '../domain/family/contributions.ts';
+import type { Contribution, FamilySplit, SplitRule } from '../domain/family/contributions.ts';
 import { useData, UndoNotice, percent, useDeleteWithUndo, useWide } from './common.tsx';
 import { Icon } from './icons.tsx';
 import { PlanItemSheet } from './PlanItemSheet.tsx';
 import { useServices } from './services-context.tsx';
 import { t } from './i18n/index.ts';
 
-type FamilyData = { items: Array<{ item: PlanItem; amount: Money }>; members: Member[]; split: FamilySplit; settings: HouseholdSettings };
+type FamilyData = { items: Array<{ item: PlanItem; amount: Money }>; members: Member[]; split: FamilySplit; splitRule: SplitRule };
 
 /** « + 300,00 € Portátil» for each non-zero share of the member; '' when there is none. */
 const assignedTerms = (items: FamilyData['items'], contribution: Contribution): string =>
@@ -20,17 +21,13 @@ const assignedTerms = (items: FamilyData['items'], contribution: Contribution): 
     .map(({ item, share }) => t('family.assignedTerm', { amount: format(share.amount), name: item.name }))
     .join('');
 
-export function FamilyView() {
+/** `closed`: a finished month is shown as it was and cannot be edited (E1-1). */
+export function FamilyView({ month, closed }: { month: YearMonth; closed: boolean }) {
   const { members, plan } = useServices();
   const load = useCallback(async (): Promise<FamilyData> => {
-    const [items, householdMembers, split, settings] = await Promise.all([
-      plan.listWithAmounts(),
-      members.list(),
-      plan.contributions(),
-      plan.getSettings(),
-    ]);
-    return { items, members: householdMembers, split, settings };
-  }, [members, plan]);
+    const [view, householdMembers] = await Promise.all([plan.monthView(month), members.list()]);
+    return { items: view.items, members: householdMembers, split: view.split, splitRule: view.splitRule };
+  }, [members, plan, month]);
   const { data, error, reload } = useData(load);
   const wide = useWide();
 
@@ -40,7 +37,7 @@ export function FamilyView() {
   const names = new Map(data.members.map((member) => [member.id, member]));
   const hasParticipants = data.split.contributions.length > 0;
   const isDeficit = data.split.remaining.amountMinor < 0;
-  const equalKeep = data.settings.splitRule === 'EQUAL_KEEP';
+  const equalKeep = data.splitRule === 'EQUAL_KEEP';
   const assignedTotal = subtract(data.split.planTotal, data.split.formulaTotal);
   const breakdown = (contribution: Contribution): string => {
     const params = {
@@ -70,7 +67,7 @@ export function FamilyView() {
                 return (
                   <li className="family-member" key={contribution.memberId}>
                     <span className="member-dot" data-color={member?.color} aria-hidden="true">{member ? [...member.name][0] : ''}</span>
-                    <span className="family-member__name">{member?.name ?? contribution.memberId}</span>
+                    <span className="family-member__name">{member?.name ?? t('family.formerMember')}</span>
                     <strong>{format(contribution.total)}</strong>
                     <span className={contribution.keeps.amountMinor < 0 ? 'muted small negative' : 'muted small'}>{t('family.keeps', { amount: format(contribution.keeps) })}</span>
                   </li>
@@ -125,7 +122,7 @@ export function FamilyView() {
             <ul className="calculation-list">
               {data.split.contributions.map((contribution) => (
                 <li key={contribution.memberId}>
-                  <strong>{names.get(contribution.memberId)?.name ?? contribution.memberId}</strong>
+                  <strong>{names.get(contribution.memberId)?.name ?? t('family.formerMember')}</strong>
                   <span>{breakdown(contribution)}</span>
                 </li>
               ))}
@@ -135,7 +132,8 @@ export function FamilyView() {
 
         <section className="panel family-plan" aria-labelledby="family-plan-heading">
           <h3 id="family-plan-heading">{t('family.planHeader', { amount: format(data.split.planTotal) })}</h3>
-          <PlanList items={data.items} members={data.members} reload={reload} />
+          {closed && <p className="muted small">{t('family.closedMonth')}</p>}
+          <PlanList items={data.items} members={data.members} reload={reload} readOnly={closed} />
         </section>
       </div>
     </div>
@@ -143,7 +141,7 @@ export function FamilyView() {
 }
 
 /** The plan lines with their edit sheet and undo; shared by Familiar and the first-use setup. */
-export function PlanList({ items, members, reload }: { items: FamilyData['items']; members: Member[]; reload: () => void }) {
+export function PlanList({ items, members, reload, readOnly = false }: { items: FamilyData['items']; members: Member[]; reload: () => void; readOnly?: boolean }) {
   const { plan } = useServices();
   const [editing, setEditing] = useState<PlanItem | null | undefined>(undefined);
   const planActions = useDeleteWithUndo<PlanItem>((item) => plan.delete(item.id), plan.restore.bind(plan), reload);
@@ -174,6 +172,7 @@ export function PlanList({ items, members, reload }: { items: FamilyData['items'
                 aria-label={shares
                   ? t('family.openLineAssigned', { name: item.name, amount: format(amount), shares: shares.replaceAll(' · ', '; ') })
                   : t('family.openLine', { name: item.name, amount: format(amount) })}
+                disabled={readOnly}
                 onClick={() => setEditing(item)}
               >
                 <span className="row__main">
@@ -182,14 +181,16 @@ export function PlanList({ items, members, reload }: { items: FamilyData['items'
                 </span>
                 {item.kind.type === 'ASSIGNED' && <span className="assigned-badge">{t('family.assigned')}</span>}
                 <span className="row__amount">{format(amount)}</span>
-                <Icon name="forward" />
+                {!readOnly && <Icon name="forward" />}
               </button>
             </li>
           );
         })}
-        <li>
-          <button type="button" className="add-line-row" onClick={() => setEditing(null)}>{t('family.addCommonExpense')}</button>
-        </li>
+        {!readOnly && (
+          <li>
+            <button type="button" className="add-line-row" onClick={() => setEditing(null)}>{t('family.addCommonExpense')}</button>
+          </li>
+        )}
       </ul>
       <UndoNotice message={planActions.deleted ? t('ui.deletedNamed', { name: planActions.deleted.name }) : null} onUndo={planActions.undo} />
     </>

@@ -110,4 +110,5 @@ Lo define `docs/spec-rediseno.md` (F1–F7, decisiones Q1–Q5). En resumen:
   3. `aporte = ingreso − conserva + Σ asignadas`.
 
   Los aportes suman exactamente el total del plan.
+- Los meses terminados se congelan en `MonthSnapshot` (ADR-022): las entradas del reparto, nunca los resultados.
 - Lo común **no** se registra como gastos: vive en el plan. Las transferencias entre miembros (`Settlement`) quedan aplazadas (ADR-011).

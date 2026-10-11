@@ -82,6 +82,15 @@ export interface PlanItemRecord {
   updatedAt: string;
 }
 
+/** Frozen inputs of the family split for a finished month (E1-1). Key: `month` "YYYY-MM". */
+export interface MonthSnapshotRecord {
+  month: string;
+  splitRule: string;
+  members: { id: string; active: boolean; referenceIncome: MoneyRecord | null }[];
+  planItems: PlanItemRecord[];
+  createdAt: string;
+}
+
 /** Household-wide settings; a single row with id "household". */
 export interface SettingsRecord {
   id: 'household';
