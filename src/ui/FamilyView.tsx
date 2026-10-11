@@ -94,7 +94,7 @@ export function FamilyView() {
               <p><Icon name="check" /> {t('family.balanced')}</p>
               {/* The proof is the visible sum: every contribution adds up to the plan total. */}
               <p className="muted small">
-                {t('family.balancedSum', { terms: data.split.contributions.map((contribution) => format(contribution.total)).join(' + '), total: format(data.split.planTotal) })}
+                {t('family.balancedSum', { terms: data.split.contributions.map((contribution) => format(contribution.total)).join(t('family.balancedJoiner')), total: format(data.split.planTotal) })}
               </p>
             </div>
           )}
