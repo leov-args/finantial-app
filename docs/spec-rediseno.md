@@ -283,6 +283,17 @@ export function contributions(participants: readonly Participant[], items: reado
 
 Validar el presupuesto de las líneas del plan con gastos reales (fase 3), sincronización, PWA y apps de tienda, OCR de fotos y PDF, resúmenes conversacionales e historial de cambios del plan (ver `docs/intent/rediseno.md`).
 
+- [x] **Botón informativo «i» (2026-10-05; hecho 2026-10-11, E0-1):** ~~en Familiar~~ **se hizo en Ajustes, junto al selector de la regla de reparto** (`RuleInfoSheet`, una hoja modal). Se probó primero un panel plegable en Familiar y se descartó: repetía «Cómo se calcula» y la explicación hace más falta al elegir la regla. Explica cómo se calculan los porcentajes, para que no se lea como un error que todos tengan el mismo porcentaje. Con la regla proporcional debe contar que:
+  - el peso de cada uno es su sueldo ÷ la suma de sueldos (p. ej. 2.600 / 4.000 = 65 %), y esa es la parte que paga de los gastos comunes;
+  - por eso todos pagan el mismo % de **su propio** sueldo (gastos comunes ÷ ingresos); quien gana más paga más en euros, no un % distinto;
+  - las líneas asignadas **no** entran en «Gastos comunes a repartir»: las paga entera quien las tiene y solo bajan lo que le queda; con ellas, el % total de cada uno ya no es igual.
+  - Valorar mostrar también el % del gasto que paga cada uno (el peso), además del % de su sueldo. Con la regla de igualar lo que queda, explicar la suya.
+- [ ] **Botón informativo «i» en la barra de captura (2026-10-05):** que enseñe qué frases acepta hoy el asistente (gramática fija de `src/agent/parser.ts`, sin LLM), con ejemplos:
+  - `gasto <importe> [categoría] [comercio]`, p. ej. «gasto 12 comida», «gasto 12,50 € comida Mercadona»; sin categoría reconocida, pregunta cuál con botones;
+  - `ingreso <importe> [descripción]`, p. ej. «ingreso 1200 nómina»;
+  - solo euros; el gasto queda como individual de quien está activo, pagado por esa persona y con fecha de hoy.
+  - Los ejemplos salen de `t()` (catálogo), y la lista debe seguir a la gramática: si se añaden frases, se actualiza la ayuda.
+
 ## Cierre (2026-10-04)
 
 Primera versión cerrada con el *Checkpoint final* de `tasks/todo.md`: 302 tests en verde, bundle de 155,37 / 160 kB gzip y aprobación del usuario. Las notas siguientes son **informativas**: no bloquean el cierre ni son compromisos; se retoman, si se quiere, como tareas nuevas.

@@ -7,6 +7,7 @@ const PATHS = {
   forward: 'm9 5 7 7-7 7',
   send: 'M12 19V5M6 11l6-6 6 6',
   check: 'm5 12.5 4.5 4.5L19 7.5',
+  info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 11v5.5M12 7.5h.01',
 } as const;
 
 export type IconName = keyof typeof PATHS;
