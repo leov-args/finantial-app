@@ -283,7 +283,7 @@ export function contributions(participants: readonly Participant[], items: reado
 
 Validar el presupuesto de las líneas del plan con gastos reales (fase 3), sincronización, PWA y apps de tienda, OCR de fotos y PDF, resúmenes conversacionales e historial de cambios del plan (ver `docs/intent/rediseno.md`).
 
-- [ ] **Botón informativo «i» en Familiar (2026-10-05):** junto a los porcentajes del reparto, un botón «i» que explique cómo se calculan, para que no se lea como un error que todos tengan el mismo porcentaje. Con la regla proporcional debe contar que:
+- [x] **Botón informativo «i» (2026-10-05; hecho 2026-10-11, E0-1):** ~~en Familiar~~ **se hizo en Ajustes, junto al selector de la regla de reparto** (`RuleInfoSheet`, una hoja modal). Se probó primero un panel plegable en Familiar y se descartó: repetía «Cómo se calcula» y la explicación hace más falta al elegir la regla. Explica cómo se calculan los porcentajes, para que no se lea como un error que todos tengan el mismo porcentaje. Con la regla proporcional debe contar que:
   - el peso de cada uno es su sueldo ÷ la suma de sueldos (p. ej. 2.600 / 4.000 = 65 %), y esa es la parte que paga de los gastos comunes;
   - por eso todos pagan el mismo % de **su propio** sueldo (gastos comunes ÷ ingresos); quien gana más paga más en euros, no un % distinto;
   - las líneas asignadas **no** entran en «Gastos comunes a repartir»: las paga entera quien las tiene y solo bajan lo que le queda; con ellas, el % total de cada uno ya no es igual.

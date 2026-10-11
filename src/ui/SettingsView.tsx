@@ -3,6 +3,8 @@ import { type Member, MEMBER_COLORS } from '../domain/member/member.ts';
 import type { Money } from '../domain/money/money.ts';
 import { useData, useMe, amountText, readIncome, Field, FormError } from './common.tsx';
 import { CategoriesView, MembersView } from './NameListView.tsx';
+import { Icon } from './icons.tsx';
+import { RuleInfoSheet } from './RuleInfoSheet.tsx';
 import { FORM, toErrors } from './errors.ts';
 import { t } from './i18n/index.ts';
 import { useServices } from './services-context.tsx';
@@ -12,15 +14,16 @@ type Status = { section: string; message: string; errors: Record<string, string>
 
 export function SettingsView() {
   const services = useServices();
-  const load = useCallback(() => Promise.all([services.members.list(), services.plan.getSettings()]), [services]);
+  const load = useCallback(() => Promise.all([services.members.list(), services.plan.getSettings(), services.plan.contributions()]), [services]);
   const { data, error, reload } = useData(load);
   const [me, setMe] = useMe(data?.[0] ?? []);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status | null>(null);
+  const [ruleInfoOpen, setRuleInfoOpen] = useState(false);
 
   if (error) return <p className="error" role="alert">{error}</p>;
   if (!data) return <p className="muted">{t('ui.loading')}</p>;
-  const [members, settings] = data;
+  const [members, settings, split] = data;
   const incomeDraft = (member: Member): string => drafts[member.id] ?? (member.referenceIncome ? amountText(member.referenceIncome) : '');
   const active = members.filter((member) => member.active);
   const colorOwner = new Map(active.map((member) => [member.color, member]));
@@ -135,7 +138,13 @@ export function SettingsView() {
       ))}
 
       <section className="panel settings-section">
-        <h3>{t('members.householdRule')}</h3>
+        <div className="settings-section__head">
+          <h3>{t('members.householdRule')}</h3>
+          <button type="button" className="icon-button" aria-label={t('ui.ruleInfoLabel')} aria-haspopup="dialog" onClick={() => setRuleInfoOpen(true)}>
+            <Icon name="info" />
+          </button>
+        </div>
+        {ruleInfoOpen && <RuleInfoSheet rule={settings.splitRule} split={split} members={members} onClose={() => setRuleInfoOpen(false)} />}
         <Field label={t('members.householdRule')} name="splitRule" errors={{}}>
           <select
             value={settings.splitRule}

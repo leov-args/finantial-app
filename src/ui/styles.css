@@ -187,6 +187,11 @@ button:active { transform: scale(0.97); }
 .family-balanced p:first-child { display: flex; align-items: center; gap: 0.35rem; color: var(--positive); }
 .family-balanced .muted { margin-top: 0.15rem; font-weight: 400; font-variant-numeric: tabular-nums; }
 /* «Cómo se calcula» is the last row of the transfers card; its chevron turns as it opens. */
+.settings-section__head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.settings-section__head h3 { margin: 0; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; margin: -0.5rem -0.5rem -0.5rem 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); }
+.icon-button .icon { width: 1.25rem; height: 1.25rem; }
+.sheet .form > p { margin: 0; color: var(--muted); }
 .family-explanation { margin-top: 0.75rem; border-top: 1px solid var(--border); }
 .family-explanation[open] { display: block; }
 .family-explanation summary { display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0.75rem 0 0.1rem; color: var(--text); list-style: none; }

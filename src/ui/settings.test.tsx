@@ -94,4 +94,98 @@ describe('settings', () => {
     expect(await screen.findByText('Regla guardada')).toBeTruthy();
     expect((await app.services.plan.getSettings()).splitRule).toBe('PROPORTIONAL');
   });
+
+  describe('E0-1: the «i» popup of the split rule', () => {
+    const seedWithPlan = async (app: Parameters<typeof household>[0]) => {
+      const { ana, partner } = await household(app);
+      await app.services.members.setReferenceIncome({ id: ana.id, referenceIncome: eur(260000) });
+      await app.services.members.setReferenceIncome({ id: partner.id, referenceIncome: eur(140000) });
+      await app.services.plan.create({ name: 'Gastos comunes', kind: { type: 'FORMULA', amount: eur(210001) } });
+      await app.services.plan.create({ name: 'Portátil', kind: { type: 'ASSIGNED', shares: [{ memberId: ana.id, amount: eur(30000) }] } });
+    };
+    const openInfo = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(await screen.findByRole('button', { name: 'Cómo funciona esta regla' }));
+      return screen.findByRole('dialog');
+    };
+
+    it('proportional: gives each weight with the household figures, the same rate and the assigned lines left out', async () => {
+      const user = userEvent.setup();
+      await renderApp({ route: 'ajustes', seed: async (app) => { await seedWithPlan(app); await app.services.plan.setSplitRule({ splitRule: 'PROPORTIONAL' }); } });
+
+      const dialog = await openInfo(user);
+      expect(within(dialog).getByRole('heading', { name: 'Proporcional al ingreso' })).toBeTruthy();
+      // 2.600 / 4.000 = 65 % and 1.400 / 4.000 = 35 %.
+      expect(within(dialog).getByText(/^2\.600,00.€ ÷ 4\.000,00.€ = 65.%$/)).toBeTruthy();
+      expect(within(dialog).getByText(/^1\.400,00.€ ÷ 4\.000,00.€ = 35.%$/)).toBeTruthy();
+      expect(within(dialog).getByText(/el mismo 52,5.% de vuestro ingreso/)).toBeTruthy();
+      expect(within(dialog).getByText(/no entran en los gastos comunes a repartir/)).toBeTruthy();
+      expect(within(dialog).getByText(/porcentaje total de cada uno puede ser distinto/)).toBeTruthy();
+    });
+
+    it('equal keep: explains its own rule, with no weights', async () => {
+      const user = userEvent.setup();
+      await renderApp({ route: 'ajustes', seed: seedWithPlan });
+
+      const dialog = await openInfo(user);
+      expect(within(dialog).getByRole('heading', { name: 'Igualar lo que conserváis' })).toBeTruthy();
+      expect(within(dialog).getByText(/quienes pagáis conservéis lo mismo.*quien gana más aporta más euros.*no paga gastos comunes y conserva todo su ingreso/)).toBeTruthy();
+      expect(within(dialog).getByText(/no entran en los gastos comunes a repartir/)).toBeTruthy();
+      expect(within(dialog).queryByText(/÷/)).toBeNull();
+      expect(within(dialog).queryByText(/porcentaje total de cada uno puede ser distinto/)).toBeNull();
+    });
+
+    it('follows the rule selected in the dropdown and closes with «Entendido»', async () => {
+      const user = userEvent.setup();
+      await renderApp({ route: 'ajustes', seed: seedWithPlan });
+
+      await user.selectOptions(await screen.findByLabelText('Regla de reparto del hogar'), 'PROPORTIONAL');
+      await screen.findByText('Regla guardada');
+      const dialog = await openInfo(user);
+      expect(within(dialog).getByText(/= 65.%/)).toBeTruthy();
+      await user.click(within(dialog).getByRole('button', { name: 'Entendido' }));
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    });
+
+    it('proportional without common-expense lines does not claim a «0 %» rate', async () => {
+      const user = userEvent.setup();
+      await renderApp({ route: 'ajustes', seed: async (app) => {
+        const { ana, partner } = await household(app);
+        await app.services.members.setReferenceIncome({ id: ana.id, referenceIncome: eur(260000) });
+        await app.services.members.setReferenceIncome({ id: partner.id, referenceIncome: eur(140000) });
+        await app.services.plan.setSplitRule({ splitRule: 'PROPORTIONAL' });
+      } });
+
+      const dialog = await openInfo(user);
+      expect(within(dialog).getByText(/= 65.%/)).toBeTruthy();
+      expect(within(dialog).queryByText(/el mismo/)).toBeNull();
+    });
+
+    it('proportional with all incomes at zero shows no weights', async () => {
+      const user = userEvent.setup();
+      await renderApp({ route: 'ajustes', seed: async (app) => {
+        const { ana, partner } = await household(app);
+        await app.services.members.setReferenceIncome({ id: ana.id, referenceIncome: eur(0) });
+        await app.services.members.setReferenceIncome({ id: partner.id, referenceIncome: eur(0) });
+        await app.services.plan.setSplitRule({ splitRule: 'PROPORTIONAL' });
+      } });
+
+      const dialog = await openInfo(user);
+      expect(within(dialog).queryByText(/÷/)).toBeNull();
+      expect(within(dialog).getByText('Cada persona aporta el mismo porcentaje de su ingreso.')).toBeTruthy();
+    });
+
+    it('the «i» button announces that it opens a dialog', async () => {
+      await renderApp({ route: 'ajustes', seed: household });
+      expect((await screen.findByRole('button', { name: 'Cómo funciona esta regla' })).getAttribute('aria-haspopup')).toBe('dialog');
+    });
+
+    it('without reference incomes it explains the rule but shows no figures', async () => {
+      const user = userEvent.setup();
+      await renderApp({ route: 'ajustes', seed: async (app) => { await household(app); await app.services.plan.setSplitRule({ splitRule: 'PROPORTIONAL' }); } });
+
+      const dialog = await openInfo(user);
+      expect(within(dialog).getByText('Cada persona aporta el mismo porcentaje de su ingreso.')).toBeTruthy();
+      expect(within(dialog).queryByText(/÷/)).toBeNull();
+    });
+  });
 });

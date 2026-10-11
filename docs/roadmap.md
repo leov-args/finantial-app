@@ -31,7 +31,7 @@ Todo tamaño S.
 
 | Id | Ítem | Criterio de aceptación |
 |---|---|---|
-| E0-1 | **Botón «i» en Familiar** (prioridad: explica el diferencial, ver benchmark) | Lo anotado en el *Backlog* de `docs/spec-rediseno.md`: el peso de cada uno, el % sobre su propio sueldo y que las líneas asignadas quedan fuera; explica las dos reglas. Valorar comparar las reglas («a partes iguales», «proporcional», «os quedáis con lo mismo») con las cifras del hogar. |
+| E0-1 | ~~**Botón «i» en Familiar**~~ **Hecho (2026-10-11): botón «i» en Ajustes** (prioridad: explica el diferencial, ver benchmark) | Una hoja modal junto al selector de la regla de reparto: el peso de cada uno, el % sobre su propio sueldo y que las líneas asignadas quedan fuera; explica las dos reglas con las cifras del hogar. Se movió de Familiar a Ajustes porque allí repetía «Cómo se calcula». **Pendiente, aparte:** comparar las reglas («a partes iguales», «proporcional», «os quedáis con lo mismo») con las cifras del hogar. |
 | E0-2 | Botón «i» en la barra de captura | Lo anotado en el *Backlog* de la spec: ejemplos sacados de `t()` que siguen a la gramática de `src/agent/parser.ts`. |
 | E0-3 | Accesibilidad | El lector de pantalla oye la fecha y la categoría de cada fila (`personal.openExpense`, `family.openLine`). El chevron de «Cómo se calcula» respeta `prefers-reduced-motion`. |
 | E0-4 | Hoja | Velocidad acotada al soltar (`useSheet`). `shouldDismiss()` puro con un test de 3 casos. Arrastre probado en un Android y un iPhone reales. |
