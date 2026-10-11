@@ -2,7 +2,7 @@ import type { HouseholdArchive, HouseholdArchiveReadResult, ParsedHousehold } fr
 import { HouseholdArchiveError } from '../../application/ports/household-archive.ts';
 import { DEFAULT_CATEGORIES } from '../../domain/category/category.ts';
 import type { FamilyFinanceDb } from '../database/db.ts';
-import { parseHouseholdFile, type HouseholdFileData } from '../backup/household-file.ts';
+import { parseHouseholdFile, serializeHousehold, type HouseholdFileData } from '../backup/household-file.ts';
 
 export class DexieHouseholdArchive implements HouseholdArchive {
   constructor(private readonly db: FamilyFinanceDb) {}
@@ -10,6 +10,17 @@ export class DexieHouseholdArchive implements HouseholdArchive {
   read(text: string): HouseholdArchiveReadResult {
     const { summary, parsed } = parseHouseholdFile(text);
     return { summary, parsed };
+  }
+
+  async export(createdAt: Date): Promise<string> {
+    const data = await this.db.transaction('r', this.db.dataTables, async () => {
+      const [members, categories, incomes, expenses, planItems, settings, monthSnapshots] = await Promise.all([
+        this.db.members.toArray(), this.db.categories.toArray(), this.db.incomes.toArray(), this.db.expenses.toArray(),
+        this.db.planItems.toArray(), this.db.settings.toArray(), this.db.monthSnapshots.toArray(),
+      ]);
+      return { members, categories, incomes, expenses, planItems, settings, monthSnapshots };
+    });
+    return serializeHousehold(data, createdAt);
   }
 
   async replaceAll(parsed: ParsedHousehold): Promise<void> {

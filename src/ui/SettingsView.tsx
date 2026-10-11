@@ -5,6 +5,7 @@ import { useData, useMe, amountText, readIncome, Field, FormError } from './comm
 import { CategoriesView, MembersView } from './NameListView.tsx';
 import { Icon } from './icons.tsx';
 import { RuleInfoSheet } from './RuleInfoSheet.tsx';
+import { shareFile } from './share-file.ts';
 import { FORM, toErrors } from './errors.ts';
 import { t } from './i18n/index.ts';
 import { useServices } from './services-context.tsx';
@@ -47,6 +48,18 @@ export function SettingsView() {
       done(section, message);
     } catch (e) {
       fail(section, toErrors(e));
+    }
+  }
+
+  async function sendChanges() {
+    try {
+      const { filename, text } = await services.household.exportFile();
+      const file = new File([text], filename, { type: 'application/json' });
+      const result = await shareFile(file);
+      if (result === 'cancelled') return;
+      done('share', result === 'shared' ? t('ui.changesSent') : t('ui.changesDownloaded'));
+    } catch (e) {
+      fail('share', toErrors(e));
     }
   }
 
@@ -159,6 +172,18 @@ export function SettingsView() {
         </Field>
         <p className="muted small">{settings.splitRule === 'EQUAL_KEEP' ? t('ui.equalKeepDescription') : t('ui.proportionalDescription')}</p>
         {feedback('rule')}
+      </section>
+
+      <section className="panel settings-section">
+        <h3>{t('ui.shareTitle')}</h3>
+        <p className="muted">{t('ui.shareDescription')}</p>
+        <div className="actions">
+          <button type="button" className="primary" onClick={() => void sendChanges()}>
+            <Icon name="send" />
+            {t('ui.sendChanges')}
+          </button>
+          {feedback('share')}
+        </div>
       </section>
 
       <section className="panel settings-section">
