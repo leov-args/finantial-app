@@ -12,6 +12,7 @@ import { type CategoryId, asCategoryId } from '../../domain/shared/ids.ts';
 import type { AppContext } from '../shared/context.ts';
 import { ApplicationError, notFound } from '../shared/errors.ts';
 import { getCurrentLocale } from '../../domain/shared/locale.ts';
+import { clearTombstone, markTombstone } from '../shared/tombstones.ts';
 import { idSchema, nameSchema, parseInput } from '../shared/schemas.ts';
 
 const createSchema = z.object({ name: nameSchema });
@@ -38,6 +39,7 @@ export class CategoryService {
       });
       await this.assertUniqueName(category.name, null);
       await this.ctx.categories.save(category);
+      await clearTombstone(this.ctx, 'categories', category.id);
       return category;
     });
   }
@@ -49,6 +51,7 @@ export class CategoryService {
       const updated = renameCategory(category, name, toTimestamp(this.ctx.clock.now()));
       await this.assertUniqueName(updated.name, category.id);
       await this.ctx.categories.save(updated);
+      await clearTombstone(this.ctx, 'categories', updated.id);
       return updated;
     });
   }
@@ -64,7 +67,10 @@ export class CategoryService {
         });
       }
       const updated = setCategoryArchived(category, archived, toTimestamp(this.ctx.clock.now()));
-      if (updated !== category) await this.ctx.categories.save(updated);
+      if (updated !== category) {
+        await this.ctx.categories.save(updated);
+      }
+      await clearTombstone(this.ctx, 'categories', updated.id);
       return updated;
     });
   }
@@ -90,6 +96,7 @@ export class CategoryService {
         );
       }
       await this.ctx.categories.delete(id);
+      await markTombstone(this.ctx, 'categories', id);
       return category;
     });
   }

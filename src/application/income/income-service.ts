@@ -7,6 +7,7 @@ import { asIncomeId, asMemberId } from '../../domain/shared/ids.ts';
 import type { AppContext } from '../shared/context.ts';
 import { ApplicationError, notFound } from '../shared/errors.ts';
 import { requireMember } from '../shared/guards.ts';
+import { clearTombstone, markTombstone } from '../shared/tombstones.ts';
 import { descriptionSchema, idSchema, isoDateSchema, moneySchema, notesSchema, parseInput } from '../shared/schemas.ts';
 
 const scheduleSchema = z.discriminatedUnion('kind', [
@@ -75,6 +76,7 @@ export class IncomeService {
         updatedAt: now,
       });
       await this.ctx.incomes.save(income);
+      await clearTombstone(this.ctx, 'incomes', income.id);
       return income;
     });
   }
@@ -101,6 +103,7 @@ export class IncomeService {
         toTimestamp(this.ctx.clock.now()),
       );
       await this.ctx.incomes.save(current);
+      await clearTombstone(this.ctx, 'incomes', current.id);
       return { previous, current };
     });
   }
@@ -115,6 +118,7 @@ export class IncomeService {
         throw new ApplicationError('CONFLICT', 'El ingreso cambió desde que se creó.', [], { reason: 'RECORD_CHANGED' });
       }
       await this.ctx.incomes.delete(id);
+      await markTombstone(this.ctx, 'incomes', id);
       return income;
     });
   }
@@ -128,6 +132,7 @@ export class IncomeService {
     return this.ctx.tx.run(async () => {
       await requireMember(this.ctx, income.memberId, 'memberId', { mustBeActive: false });
       await this.ctx.incomes.save(income);
+      await clearTombstone(this.ctx, 'incomes', income.id);
       return income;
     });
   }

@@ -16,6 +16,7 @@ import { toTimestamp } from '../../domain/shared/dates.ts';
 import { type MemberId, asMemberId } from '../../domain/shared/ids.ts';
 import type { AppContext } from '../shared/context.ts';
 import { freezePastMonths } from '../shared/snapshots.ts';
+import { clearTombstone, markTombstone } from '../shared/tombstones.ts';
 import { ApplicationError, notFound } from '../shared/errors.ts';
 import { idSchema, moneySchema, nameSchema, parseInput } from '../shared/schemas.ts';
 
@@ -49,6 +50,7 @@ export class MemberService {
         now: toTimestamp(this.ctx.clock.now()),
       });
       await this.ctx.members.save(member);
+      await clearTombstone(this.ctx, 'members', member.id);
       return member;
     });
   }
@@ -59,6 +61,7 @@ export class MemberService {
       const member = await this.require(asMemberId(id));
       const updated = renameMember(member, name, toTimestamp(this.ctx.clock.now()));
       await this.ctx.members.save(updated);
+      await clearTombstone(this.ctx, 'members', updated.id);
       return updated;
     });
   }
@@ -77,7 +80,10 @@ export class MemberService {
         const others = (await this.ctx.members.getAll()).filter((m) => m.id !== member.id);
         if (others.some((m) => m.active && m.color === member.color)) updated = setMemberColor(updated, firstFreeColor(others), now);
       }
-      if (updated !== member) await this.ctx.members.save(updated);
+      if (updated !== member) {
+        await this.ctx.members.save(updated);
+      }
+      await clearTombstone(this.ctx, 'members', updated.id);
       return updated;
     });
   }
@@ -101,6 +107,7 @@ export class MemberService {
         );
       }
       await this.ctx.members.delete(id);
+      await markTombstone(this.ctx, 'members', id);
       return member;
     });
   }
@@ -118,6 +125,7 @@ export class MemberService {
         toTimestamp(this.ctx.clock.now()),
       );
       await this.ctx.members.save(updated);
+      await clearTombstone(this.ctx, 'members', updated.id);
       return updated;
     });
   }
@@ -144,7 +152,10 @@ export class MemberService {
         });
       }
       const updated = setMemberColor(member, color, toTimestamp(this.ctx.clock.now()));
-      if (updated !== member) await this.ctx.members.save(updated);
+      if (updated !== member) {
+        await this.ctx.members.save(updated);
+      }
+      await clearTombstone(this.ctx, 'members', updated.id);
       return updated;
     });
   }

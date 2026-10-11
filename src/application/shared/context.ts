@@ -7,6 +7,7 @@ import type {
   MonthSnapshotRepository,
   PlanItemRepository,
   SettingsRepository,
+  TombstoneRepository,
   TransactionRunner,
 } from '../ports/repositories.ts';
 import type { IdGenerator } from '../ports/system.ts';
@@ -21,6 +22,7 @@ export interface AppContext {
   readonly planItems: PlanItemRepository;
   readonly settings: SettingsRepository;
   readonly snapshots: MonthSnapshotRepository;
+  readonly tombstones: TombstoneRepository;
   readonly householdArchive: HouseholdArchive;
   readonly tx: TransactionRunner;
   readonly clock: Clock;

@@ -46,6 +46,20 @@ export const MIGRATIONS: readonly Migration[] = [
       monthSnapshots: 'month',
     },
   },
+  {
+    version: 3,
+    description: 'Tombstones for hard-deleted records (E1-2). No data to reshape.',
+    stores: {
+      members: 'id, active',
+      categories: 'id, archived',
+      incomes: 'id, date, memberId',
+      expenses: 'id, date, categoryId, paidBy, ownerId, receiptId, createdAt',
+      planItems: 'id',
+      settings: 'id',
+      monthSnapshots: 'month',
+      tombstones: '[table+id], deletedAt',
+    },
+  },
 ];
 
 export const CURRENT_DB_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;

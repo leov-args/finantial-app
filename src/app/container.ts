@@ -17,6 +17,7 @@ import {
   DexieMonthSnapshotRepository,
   DexiePlanItemRepository,
   DexieSettingsRepository,
+  DexieTombstoneRepository,
   DexieTransactionRunner,
 } from '../infrastructure/repositories/dexie-repositories.ts';
 import { DexieHouseholdArchive } from '../infrastructure/repositories/dexie-household-archive.ts';
@@ -62,6 +63,7 @@ export function createApp(options: AppOptions = {}): App {
     planItems: new DexiePlanItemRepository(db),
     settings: new DexieSettingsRepository(db),
     snapshots: new DexieMonthSnapshotRepository(db),
+    tombstones: new DexieTombstoneRepository(db),
     householdArchive: new DexieHouseholdArchive(db),
     tx: new DexieTransactionRunner(db),
     clock,

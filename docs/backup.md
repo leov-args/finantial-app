@@ -39,3 +39,7 @@ No se fusionan hogares. Una segunda importación en un dispositivo que ya tiene 
 - JSON/formato inválido, versión de base más nueva, archivo mayor de 20 MB, record corrupto, ids duplicados y referencias rotas.
 - Rechazar una base no vacía y comprobar la reversión si falla una escritura intermedia.
 - En UI: mostrar resumen, cancelar sin escribir, mostrar error de archivo inválido, guardar «quién eres» por dispositivo y saltar la pregunta con una sola persona activa.
+
+## E1-2 database version
+
+The application writes `dbVersion: 3`. The backup data shape is unchanged and does not include tombstones; files with older database versions remain importable, with absent tables treated as empty.
