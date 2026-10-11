@@ -288,6 +288,8 @@ button:active { transform: scale(0.97); }
 
 .capture-bar { min-width: 0; }
 .capture-bar__identity { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.35rem; padding: 0 0.5rem; color: var(--muted); font-size: 0.78rem; }
+.capture-bar__identity .icon-button { margin: -0.9rem 0 -0.9rem auto; }
+.sheet code { font-family: inherit; color: var(--text); }
 .capture-bar__identity--warning { color: var(--text); }
 .capture-bar__form { display: grid; gap: 0.45rem; min-width: 0; }
 .capture-bar__composer { display: flex; align-items: center; gap: 0.5rem; min-width: 0; padding: 0.25rem 0.3rem 0.25rem 0.85rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-secondary); }

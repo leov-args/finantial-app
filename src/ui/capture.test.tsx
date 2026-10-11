@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { asYearMonth, toLocalIsoDate, yearMonthOf } from '../domain/shared/dates.ts';
 import { format, money } from '../domain/money/money.ts';
 import { cleanupApps, household, renderApp } from '../test/render-app.tsx';
+import { parse } from '../agent/parser.ts';
 import { t } from './i18n/index.ts';
 
 afterEach(cleanupApps);
@@ -321,3 +322,43 @@ async function householdFromRender() {
   if (!members) throw new Error('Household fixture missing');
   return members;
 }
+
+describe('capture bar info sheet (E0-2)', () => {
+  it.each(['personal', 'familiar', 'ajustes'])('opens on %s, closes, and every example it shows is a complete phrase for the parser', async (route) => {
+    const { app } = await renderApp({
+      route,
+      seed: async (app) => {
+        const member = await app.services.members.create({ name: 'Ana' });
+        localStorage.setItem('family-finance.me', member.id);
+      },
+    });
+    const user = userEvent.setup();
+    const form = await captureForm();
+    await user.click(within(form).getByRole('button', { name: t('assistant.infoLabel') }));
+
+    const sheet = await screen.findByRole('dialog', { name: t('assistant.infoTitle') });
+    const members = await app.services.members.list();
+    const categories = await app.services.categories.list();
+    const context = {
+      today: toLocalIsoDate(app.services.clock.now()),
+      currentMemberId: (members[0] ?? expect.unreachable()).id,
+      members: members.map(({ id, name }) => ({ id, name })),
+      categories: categories.map(({ id, name }) => ({ id, name })),
+    };
+    const examples = within(sheet).getAllByRole('listitem').map((item) => item.textContent ?? '');
+    expect(examples).toHaveLength(3);
+    for (const example of examples) {
+      expect((await parse(example, context)).status).toBe('COMPLETE');
+    }
+
+    await user.click(within(sheet).getByRole('button', { name: t('assistant.infoClose') }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(await app.services.expenses.recent()).toHaveLength(0);
+  });
+
+  it('is still available when no member is active', async () => {
+    await renderApp({ route: 'personal' });
+    const form = await captureForm();
+    expect(within(form).getByRole('button', { name: t('assistant.infoLabel') })).toBeTruthy();
+  });
+});
