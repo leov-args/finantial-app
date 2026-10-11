@@ -123,6 +123,9 @@ export const esES = {
     categoryNotDeletable: 'La categoría "{{name}}" no se puede borrar.',
     categoryInUse: 'La categoría "{{name}}" tiene {{count}} gastos. Archívala en lugar de eliminarla.',
     recordChanged: 'El registro cambió desde que se creó.',
+    householdInvalidFile: 'Archivo no válido o dañado (máx. 20 MB).',
+    householdNewerDatabase: 'Actualiza la app para abrir este archivo.',
+    householdNotEmpty: 'Esta base ya contiene datos.',
   },
   validation: {
     enterName: 'Escribe un nombre',
@@ -192,6 +195,12 @@ export const esES = {
     next: 'Siguiente',
     back: 'Atrás',
     finish: 'Ver aportes',
+    joinHousehold: 'Ya tenemos hogar: abrir archivo',
+    chooseHouseholdFile: 'Abrir archivo del hogar',
+    householdPreviewTitle: 'Resumen',
+    householdCounts: 'Gastos: {{expenses}} · Ingresos: {{incomes}} · Plan: {{planItems}}',
+    householdDateRange: 'Fechas: {{from}} – {{to}}',
+    householdConfirm: 'Unirme',
   },
   assistant: {
     captureLabel: 'Barra de captura',

@@ -147,6 +147,7 @@ UI, textos de error de aplicación y documentación en español; identificadores
 - **Cómo se aplica:** lo comprueba el plugin `family-finance:bundle-budget` de `vite.config.ts` al construir; si se supera, falla `npm run build` y, con él, `npm run check`. Mide gzip sobre el archivo emitido, así que su cifra puede diferir unas décimas de la que imprime Vite.
 - **Aviso de Vite:** `chunkSizeWarningLimit` se sube a 540 kB (equivalente sin comprimir), para que el aviso solo salte cuando el presupuesto esté en riesgo.
 - **Subirlo** es una decisión: se edita esta entrada con el motivo y la nueva medida.
+- **Revision (2026-10-11): 160 → 200 kB gzip.** E2-2 (join a household) reached 160.04 kB with strict validation of an untrusted file, and stage 2 keeps adding (E1-3, E2-3, E2-4). Raising the cap was preferred over weakening that validation. The plugin still fails when it is exceeded; `chunkSizeWarningLimit` becomes 680 kB (same ratio). First cut if space runs out again: `zod/mini`.
 
 **Consecuencias.**
 - Margen de ~8 kB sobre la medida de hoy (151.54 kB con el plugin).

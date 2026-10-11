@@ -48,6 +48,10 @@ export function AppShell({ persistence }: { persistence: PersistenceStatus }) {
   // X6: an empty database (no members at all) starts the setup; once started it lasts until «Ver aportes».
   const setupStep = household.data === undefined ? null : (savedSetupStep ?? (household.data.length === 0 ? 1 : null));
   const onboarding = setupStep !== null;
+  const finishJoiningHousehold = () => {
+    household.reload();
+    window.location.hash = '#/personal';
+  };
 
   return (
     <div className={`shell${onboarding ? ' shell--onboarding' : ''}`}>
@@ -90,7 +94,7 @@ export function AppShell({ persistence }: { persistence: PersistenceStatus }) {
           // Until we know whether the household is empty, no view: it would flash before the setup.
           <p className="muted" role="status">{t('ui.loading')}</p>
         ) : onboarding ? (
-          <Onboarding step={setupStep} onStep={setSetupStep} />
+          <Onboarding step={setupStep} onStep={setSetupStep} onJoined={finishJoiningHousehold} />
         ) : (
           <>
             {route === 'personal' && <PersonalView month={month} />}

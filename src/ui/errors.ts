@@ -31,6 +31,9 @@ const REASON: Record<ApplicationErrorReason, readonly [form: MessageKey, field?:
   CATEGORY_NOT_DELETABLE: ['errors.categoryNotDeletable'],
   CATEGORY_IN_USE: ['errors.categoryInUse'],
   RECORD_CHANGED: ['errors.recordChanged'],
+  HOUSEHOLD_INVALID_FILE: ['errors.householdInvalidFile'],
+  HOUSEHOLD_NEWER_DATABASE: ['errors.householdNewerDatabase'],
+  HOUSEHOLD_NOT_EMPTY: ['errors.householdNotEmpty'],
 };
 
 export function toErrors(e: unknown): Record<string, string> {

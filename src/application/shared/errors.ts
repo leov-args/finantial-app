@@ -15,7 +15,10 @@ export type ApplicationErrorReason =
   | 'CATEGORY_MUST_STAY_ACTIVE'
   | 'CATEGORY_NOT_DELETABLE'
   | 'CATEGORY_IN_USE'
-  | 'RECORD_CHANGED';
+  | 'RECORD_CHANGED'
+  | 'HOUSEHOLD_INVALID_FILE'
+  | 'HOUSEHOLD_NEWER_DATABASE'
+  | 'HOUSEHOLD_NOT_EMPTY';
 
 type Params = Readonly<Record<string, string | number>>;
 

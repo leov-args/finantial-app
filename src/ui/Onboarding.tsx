@@ -7,6 +7,7 @@ import { FORM, toErrors } from './errors.ts';
 import { PlanList } from './FamilyView.tsx';
 import { t, type MessageKey } from './i18n/index.ts';
 import { useServices } from './services-context.tsx';
+import { JoinHousehold } from './JoinHousehold.tsx';
 
 const STEPS: MessageKey[] = ['onboarding.step1', 'onboarding.step2', 'onboarding.step3'];
 const INTROS: MessageKey[] = ['onboarding.membersIntro', 'onboarding.incomesIntro', 'onboarding.planIntro'];
@@ -37,7 +38,7 @@ export function useSetupStep(): [number | null, (step: number | null) => void] {
   return [step, save];
 }
 
-export function Onboarding({ step, onStep }: { step: number; onStep: (step: number | null) => void }) {
+export function Onboarding({ step, onStep, onJoined }: { step: number; onStep: (step: number | null) => void; onJoined: () => void }) {
   const services = useServices();
   const load = useCallback(async () => {
     const [members, items] = await Promise.all([services.members.list(), services.plan.listWithAmounts()]);
@@ -46,6 +47,7 @@ export function Onboarding({ step, onStep }: { step: number; onStep: (step: numb
   const { data, error, reload } = useData(load);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [incomeErrors, setIncomeErrors] = useState<Record<string, string>>({});
+  const [joining, setJoining] = useState(false);
 
   // Saves the step as soon as the setup shows, so adding the first member doesn't end it.
   useEffect(() => onStep(step), [step, onStep]);
@@ -96,7 +98,14 @@ export function Onboarding({ step, onStep }: { step: number; onStep: (step: numb
         <p className="muted small">{t('onboarding.progress', { step, total: STEPS.length })}</p>
         <h3 id="onboarding-title">{t(STEPS[step - 1] ?? 'onboarding.step1')}</h3>
         <p className="muted">{t(INTROS[step - 1] ?? 'onboarding.membersIntro')}</p>
-        {step === 1 && <MembersView />}
+        {step === 1 && (joining
+          ? <JoinHousehold onBack={() => setJoining(false)} onStep={onStep} onJoined={onJoined} />
+          : <>
+              <MembersView />
+              {data.members.length === 0 && (
+                <button type="button" onClick={() => setJoining(true)}>{t('onboarding.joinHousehold')}</button>
+              )}
+            </>)}
         {step === 2 && (
           <div className="panel">
             <div className="settings-list">

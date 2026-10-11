@@ -33,7 +33,7 @@ const contentSecurityPolicy = (): Plugin => ({
  * Bundle budget (ADR-020): the build fails when all JS together exceeds it
  * gzipped. Raising it is a decision, recorded in docs/decisions.md.
  */
-const JS_BUDGET_GZIP_KB = 160;
+const JS_BUDGET_GZIP_KB = 200;
 
 const bundleBudget = (): Plugin => ({
   name: 'family-finance:bundle-budget',
@@ -60,7 +60,7 @@ export default defineConfig({
     // No source maps in production: smaller install for low-storage phones.
     sourcemap: false,
     // Raw-size counterpart of the gzip budget, so Vite only warns once the budget is at risk.
-    chunkSizeWarningLimit: 540,
+    chunkSizeWarningLimit: 680,
   },
   test: {
     environment: 'node',
