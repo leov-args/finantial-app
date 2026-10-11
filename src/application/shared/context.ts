@@ -4,6 +4,7 @@ import type {
   ExpenseRepository,
   IncomeRepository,
   MemberRepository,
+  MonthSnapshotRepository,
   PlanItemRepository,
   SettingsRepository,
   TransactionRunner,
@@ -18,6 +19,7 @@ export interface AppContext {
   readonly expenses: ExpenseRepository;
   readonly planItems: PlanItemRepository;
   readonly settings: SettingsRepository;
+  readonly snapshots: MonthSnapshotRepository;
   readonly tx: TransactionRunner;
   readonly clock: Clock;
   readonly newId: IdGenerator;

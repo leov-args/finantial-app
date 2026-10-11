@@ -2,9 +2,10 @@ import type { Category } from '../../domain/category/category.ts';
 import type { Expense } from '../../domain/expense/expense.ts';
 import type { HouseholdSettings } from '../../domain/family/contributions.ts';
 import type { PlanItem } from '../../domain/family/plan.ts';
+import type { MonthSnapshot } from '../../domain/family/snapshot.ts';
 import type { Income } from '../../domain/income/income.ts';
 import type { Member } from '../../domain/member/member.ts';
-import type { IsoDate } from '../../domain/shared/dates.ts';
+import type { IsoDate, YearMonth } from '../../domain/shared/dates.ts';
 import type { CategoryId, ExpenseId, IncomeId, MemberId, PlanItemId } from '../../domain/shared/ids.ts';
 
 /**
@@ -32,6 +33,8 @@ export interface CategoryRepository {
 export interface IncomeRepository {
   getById(id: IncomeId): Promise<Income | undefined>;
   findByDateRange(from: IsoDate, to: IsoDate): Promise<Income[]>;
+  /** Date of the oldest income, if any. */
+  firstDate(): Promise<IsoDate | undefined>;
   countByMember(memberId: MemberId): Promise<number>;
   save(income: Income): Promise<void>;
   delete(id: IncomeId): Promise<void>;
@@ -43,6 +46,8 @@ export interface ExpenseRepository {
   findByDateRange(from: IsoDate, to: IsoDate): Promise<Expense[]>;
   /** Most recent first. */
   findRecent(limit: number): Promise<Expense[]>;
+  /** Date of the oldest expense, if any. */
+  firstDate(): Promise<IsoDate | undefined>;
   countByCategory(categoryId: CategoryId): Promise<number>;
   /** Expenses the member paid OR owns (individual scope). */
   countByMember(memberId: MemberId): Promise<number>;
@@ -56,6 +61,13 @@ export interface PlanItemRepository {
   getById(id: PlanItemId): Promise<PlanItem | undefined>;
   save(item: PlanItem): Promise<void>;
   delete(id: PlanItemId): Promise<void>;
+}
+
+export interface MonthSnapshotRepository {
+  /** Only the months that have a snapshot (no decoding). */
+  months(): Promise<YearMonth[]>;
+  getByMonth(month: YearMonth): Promise<MonthSnapshot | undefined>;
+  save(snapshot: MonthSnapshot): Promise<void>;
 }
 
 export interface SettingsRepository {

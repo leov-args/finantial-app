@@ -3,6 +3,7 @@ import type {
   ExpenseRepository,
   IncomeRepository,
   MemberRepository,
+  MonthSnapshotRepository,
   PlanItemRepository,
   SettingsRepository,
   TransactionRunner,
@@ -11,9 +12,10 @@ import type { Category } from '../../domain/category/category.ts';
 import type { Expense } from '../../domain/expense/expense.ts';
 import { DEFAULT_SPLIT_RULE, type HouseholdSettings } from '../../domain/family/contributions.ts';
 import type { PlanItem } from '../../domain/family/plan.ts';
+import type { MonthSnapshot } from '../../domain/family/snapshot.ts';
 import type { Income } from '../../domain/income/income.ts';
 import type { Member } from '../../domain/member/member.ts';
-import type { IsoDate } from '../../domain/shared/dates.ts';
+import type { IsoDate, YearMonth } from '../../domain/shared/dates.ts';
 import type { CategoryId, ExpenseId, IncomeId, MemberId, PlanItemId } from '../../domain/shared/ids.ts';
 import type { FamilyFinanceDb } from '../database/db.ts';
 import {
@@ -25,6 +27,8 @@ import {
   incomeToRecord,
   memberFromRecord,
   memberToRecord,
+  monthSnapshotFromRecord,
+  monthSnapshotToRecord,
   planItemFromRecord,
   planItemToRecord,
   settingsFromRecord,
@@ -91,6 +95,10 @@ export class DexieIncomeRepository implements IncomeRepository {
     return rows.map(incomeFromRecord);
   }
 
+  async firstDate(): Promise<IsoDate | undefined> {
+    return (await this.db.incomes.orderBy('date').first())?.date as IsoDate | undefined;
+  }
+
   countByMember(memberId: MemberId): Promise<number> {
     return this.db.incomes.where('memberId').equals(memberId).count();
   }
@@ -115,6 +123,10 @@ export class DexieExpenseRepository implements ExpenseRepository {
   async findByDateRange(from: IsoDate, to: IsoDate): Promise<Expense[]> {
     const rows = await this.db.expenses.where('date').between(from, to, true, true).toArray();
     return rows.sort(byNewest).map(expenseFromRecord);
+  }
+
+  async firstDate(): Promise<IsoDate | undefined> {
+    return (await this.db.expenses.orderBy('date').first())?.date as IsoDate | undefined;
   }
 
   async findRecent(limit: number): Promise<Expense[]> {
@@ -169,6 +181,23 @@ export class DexiePlanItemRepository implements PlanItemRepository {
 
   async delete(id: PlanItemId): Promise<void> {
     await this.db.planItems.delete(id);
+  }
+}
+
+export class DexieMonthSnapshotRepository implements MonthSnapshotRepository {
+  constructor(private readonly db: FamilyFinanceDb) {}
+
+  async months(): Promise<YearMonth[]> {
+    return (await this.db.monthSnapshots.toCollection().primaryKeys()) as YearMonth[];
+  }
+
+  async getByMonth(month: YearMonth): Promise<MonthSnapshot | undefined> {
+    const row = await this.db.monthSnapshots.get(month);
+    return row && monthSnapshotFromRecord(row);
+  }
+
+  async save(snapshot: MonthSnapshot): Promise<void> {
+    await this.db.monthSnapshots.put(monthSnapshotToRecord(snapshot));
   }
 }
 

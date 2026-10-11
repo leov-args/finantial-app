@@ -16,17 +16,20 @@ export class PersonalService {
   async monthSummary(memberId: MemberId, month: YearMonth, currency: CurrencyCode = DEFAULT_CURRENCY): Promise<PersonalMonth> {
     const { from, to } = monthRange(month);
     const historyFrom = monthRange(addMonths(month, -(HISTORY_MONTHS - 1))).from;
-    const [member, incomes, expenses, split] = await Promise.all([
+    const [member, incomes, expenses, view] = await Promise.all([
       this.ctx.members.getById(memberId),
       this.ctx.incomes.findByDateRange(from, to),
       this.ctx.expenses.findByDateRange(historyFrom, to),
-      this.plan.contributions(currency),
+      this.plan.monthView(month, currency),
     ]);
     if (!member) throw notFound('Member', memberId);
+    // A finished month is read with the income it had then; a member who did not exist yet has none.
+    const split = view.split;
+    const referenceIncome = view.members.find((m) => m.id === memberId)?.referenceIncome ?? null;
     return personalMonth({
       memberId,
       month,
-      referenceIncome: member.referenceIncome,
+      referenceIncome,
       contribution: split.contributions.find((c) => c.memberId === memberId)?.total ?? null,
       incomes,
       expenses,

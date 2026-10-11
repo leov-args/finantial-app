@@ -33,6 +33,19 @@ export const MIGRATIONS: readonly Migration[] = [
       settings: 'id',
     },
   },
+  {
+    version: 2,
+    description: 'Month snapshots: frozen split inputs of finished months (E1-1). No data to reshape.',
+    stores: {
+      members: 'id, active',
+      categories: 'id, archived',
+      incomes: 'id, date, memberId',
+      expenses: 'id, date, categoryId, paidBy, ownerId, receiptId, createdAt',
+      planItems: 'id',
+      settings: 'id',
+      monthSnapshots: 'month',
+    },
+  },
 ];
 
 export const CURRENT_DB_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;

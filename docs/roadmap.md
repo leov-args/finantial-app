@@ -41,7 +41,7 @@ Todo tamaño S.
 
 | Id | Ítem | Tamaño | Criterio de aceptación |
 |---|---|---|---|
-| E1-1 | **Historial del plan y de los ingresos de referencia** | L | Cambiar el plan o un ingreso en el mes N no altera ningún mes anterior a N, ni en Personal ni en Familiar. Migración con su test. *Decisión de su spec:* fechas de vigencia por línea e ingreso, o un «cierre de mes» que congele la aportación. |
+| E1-1 | ~~**Historial del plan y de los ingresos de referencia**~~ **Hecho (2026-10-11)** | L | Cambiar el plan o un ingreso en el mes N no altera ningún mes anterior a N, ni en Personal ni en Familiar. Versión de esquema nueva con su test (sin datos que migrar: nadie usa la app aún). *Decidido (2026-10-11):* instantáneas automáticas de las entradas del mes antes de cada cambio, sin acción del usuario; spec en `docs/spec-historial-plan.md`. Familiar gana selector de mes. |
 | E1-2 | Borrados con marca (*tombstones*) | S–M | Tabla nueva `tombstones {table, id, deletedAt}` escrita en la misma transacción que el borrado; deshacer la quita. Las consultas actuales no cambian. Migración con su test. |
 | E1-3 | Backup: exportar y restaurar (reemplazar) | M | En Ajustes. Archivo JSON con los records y los borrados (sin ZIP hasta que existan recibos; `formatVersion` permite añadirlo). La restauración sigue `docs/backup.md`: valida todo, muestra un resumen, pide confirmación y escribe en una transacción. Tests: ida y vuelta exacta, archivo inválido, versión más nueva rechazada, referencia rota, reversión si falla a mitad. Actualizar `docs/backup.md`. |
 

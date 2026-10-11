@@ -6,6 +6,7 @@ import type {
   ExpenseRecord,
   IncomeRecord,
   MemberRecord,
+  MonthSnapshotRecord,
   PlanItemRecord,
   SettingsRecord,
 } from './records.ts';
@@ -32,6 +33,7 @@ export class FamilyFinanceDb extends Dexie {
   planItems!: Table<PlanItemRecord, string>;
   /** No row means the defaults (see DexieSettingsRepository). */
   settings!: Table<SettingsRecord, string>;
+  monthSnapshots!: Table<MonthSnapshotRecord, string>;
 
   constructor(name: string = DB_NAME, options: DbOptions = {}) {
     super(name, options.dexie);
@@ -54,6 +56,6 @@ export class FamilyFinanceDb extends Dexie {
 
   /** Tables that hold user data, in backup/restore order. */
   get dataTables(): Table[] {
-    return [this.members, this.categories, this.incomes, this.expenses, this.planItems, this.settings];
+    return [this.members, this.categories, this.incomes, this.expenses, this.planItems, this.settings, this.monthSnapshots];
   }
 }

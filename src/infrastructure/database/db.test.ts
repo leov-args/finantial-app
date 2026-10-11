@@ -56,7 +56,7 @@ describe('FamilyFinanceDb', () => {
     const db = track(new FamilyFinanceDb(uniqueName()));
     expect(await db.planItems.count()).toBe(0);
     expect(await db.settings.count()).toBe(0);
-    expect(db.dataTables.map((t) => t.name)).toEqual(['members', 'categories', 'incomes', 'expenses', 'planItems', 'settings']);
+    expect(db.dataTables.map((t) => t.name)).toEqual(['members', 'categories', 'incomes', 'expenses', 'planItems', 'settings', 'monthSnapshots']);
   });
 
   it('seeds the default categories once, on creation', async () => {
@@ -129,6 +129,20 @@ describe('migrations', () => {
     expect(upgraded.verno).toBe(CURRENT_DB_VERSION + 1);
     expect(await upgraded.table('expenses').get('exp-1')).toEqual({ ...sampleExpense, tags: [] });
     expect(await upgraded.table('categories').count()).toBe(DEFAULT_CATEGORIES.length);
+  });
+
+  it('v2 adds month snapshots to a populated v1 database without touching its data', async () => {
+    const name = uniqueName();
+    const v1 = track(new Dexie(name));
+    applyMigrations(v1, [FIRST]);
+    await v1.table('expenses').add(sampleExpense);
+    v1.close();
+
+    const upgraded = track(new FamilyFinanceDb(name));
+    await upgraded.open();
+    expect(upgraded.verno).toBe(2);
+    expect(await upgraded.expenses.get('exp-1')).toEqual(sampleExpense);
+    expect(await upgraded.monthSnapshots.count()).toBe(0);
   });
 
   it('aborts a failing upgrade and leaves the old data intact', async () => {

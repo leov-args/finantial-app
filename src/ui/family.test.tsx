@@ -244,4 +244,22 @@ describe('family', () => {
     expect(await screen.findByText(/^2\.600,00.€ − 1\.365,01.€ \(52,5.%\) − 300,00.€ Portátil = 934,99.€$/)).toBeTruthy();
     expect(screen.getByText(/^1\.400,00.€ − 735,00.€ \(52,5.%\) = 665,00.€$/)).toBeTruthy();
   });
+
+  it('E1-1: a finished month keeps its plan after a change, and cannot be edited', async () => {
+    await renderApp({
+      route: 'familiar',
+      seed: async (app) => {
+        const { ana } = await couple(app);
+        const line = await app.services.plan.create({ name: 'Alquiler', kind: { type: 'FORMULA', amount: eur(100000) } });
+        await app.services.incomes.create({ memberId: ana.id, amount: eur(1000), date: '2026-09-15', source: 'OTHER', schedule: { kind: 'ONE_OFF' } });
+        await app.services.plan.update({ id: line.id, changes: { name: 'Renta' } });
+      },
+    });
+
+    expect(await screen.findByText('Renta')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Mes anterior' }));
+    const row = await planRow('Alquiler');
+    expect((within(row).getByRole('button') as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Añadir gasto común' })).toBeNull();
+  });
 });

@@ -4,9 +4,10 @@ import { type Category } from '../../domain/category/category.ts';
 import { type Member, buildMember, isMemberColor } from '../../domain/member/member.ts';
 import { type PlanItem, buildPlanItem } from '../../domain/family/plan.ts';
 import { type HouseholdSettings, isSplitRule } from '../../domain/family/contributions.ts';
+import { type MonthSnapshot, buildMonthSnapshot } from '../../domain/family/snapshot.ts';
 import { asCurrencyCode } from '../../domain/money/currency.ts';
 import { type Money, money } from '../../domain/money/money.ts';
-import { asIsoDate, asTimestamp } from '../../domain/shared/dates.ts';
+import { asIsoDate, asTimestamp, asYearMonth } from '../../domain/shared/dates.ts';
 import { asCategoryId, asExpenseId, asIncomeId, asMemberId, asPlanItemId, asReceiptId } from '../../domain/shared/ids.ts';
 import { requireName, TEXT_LIMITS } from '../../domain/shared/text.ts';
 import type { ExpenseType } from '../../domain/expense/expense.ts';
@@ -16,6 +17,7 @@ import type {
   IncomeRecord,
   MemberRecord,
   MoneyRecord,
+  MonthSnapshotRecord,
   PlanItemRecord,
   SettingsRecord,
 } from './records.ts';
@@ -196,4 +198,27 @@ export const settingsToRecord = (s: HouseholdSettings): SettingsRecord => ({ id:
 export function settingsFromRecord(r: SettingsRecord): HouseholdSettings {
   if (!isSplitRule(r.splitRule)) throw new Error(`Corrupted settings: unknown split rule "${r.splitRule}".`);
   return Object.freeze({ splitRule: r.splitRule });
+}
+
+export const monthSnapshotToRecord = (s: MonthSnapshot): MonthSnapshotRecord => ({
+  month: s.month,
+  splitRule: s.splitRule,
+  members: s.members.map((m) => ({
+    id: m.id,
+    active: m.active,
+    referenceIncome: m.referenceIncome && { amountMinor: m.referenceIncome.amountMinor, currency: m.referenceIncome.currency },
+  })),
+  planItems: s.planItems.map(planItemToRecord),
+  createdAt: s.createdAt,
+});
+
+export function monthSnapshotFromRecord(r: MonthSnapshotRecord): MonthSnapshot {
+  if (!isSplitRule(r.splitRule)) throw new Error(`Corrupted snapshot ${r.month}: unknown split rule "${r.splitRule}".`);
+  return buildMonthSnapshot({
+    month: asYearMonth(r.month),
+    splitRule: r.splitRule,
+    members: r.members.map((m) => ({ id: asMemberId(m.id), active: m.active, referenceIncome: m.referenceIncome && moneyFromRecord(m.referenceIncome) })),
+    planItems: r.planItems.map(planItemFromRecord),
+    createdAt: asTimestamp(r.createdAt),
+  });
 }

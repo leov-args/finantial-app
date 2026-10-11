@@ -53,6 +53,8 @@ export const esES = {
     addCommonExpense: 'Añadir gasto común',
     openLine: 'Abrir línea {{name}}, {{amount}}',
     openLineAssigned: 'Abrir línea {{name}}, {{amount}}, asignada: {{shares}}',
+    formerMember: 'Antiguo miembro',
+    closedMonth: 'Mes cerrado: se ve como estaba. Los cambios valen desde el mes en curso.',
     emptyPlan: 'Todavía no hay líneas en el plan.',
     assigned: 'Asignada',
     formula: 'Por fórmula',

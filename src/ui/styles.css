@@ -244,6 +244,7 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.5; }
 .calculation-list span { color: var(--muted); font-variant-numeric: tabular-nums; }
 .plan-list > li + li { border-top: 1px solid var(--border); }
 .plan-row, .add-line-row { display: flex; width: 100%; align-items: center; gap: 0.75rem; padding: 0.7rem 0.5rem; border: 0; border-radius: 0.5rem; background: transparent; text-align: left; transition: background-color 120ms ease-out; }
+.plan-row:disabled { cursor: default; }
 .plan-row > .icon { width: 1rem; height: 1rem; color: var(--muted); }
 .add-line-row { color: var(--accent); }
 /* List rows highlight on press instead of shrinking like buttons. */
