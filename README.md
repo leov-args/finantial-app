@@ -85,6 +85,8 @@ agent / ocr → application (nunca la base de datos)
 
 ## Fases
 
+El orden de trabajo tras la primera versión está en el [roadmap](docs/roadmap.md) (etapas 0–4, backlog y lo que no haremos), apoyado en el [benchmark](docs/benchmark.md). La tabla queda como referencia de las fases originales.
+
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Arquitectura, dominio base, persistencia | ✅ |
