@@ -288,7 +288,7 @@ Validar el presupuesto de las líneas del plan con gastos reales (fase 3), sincr
   - por eso todos pagan el mismo % de **su propio** sueldo (gastos comunes ÷ ingresos); quien gana más paga más en euros, no un % distinto;
   - las líneas asignadas **no** entran en «Gastos comunes a repartir»: las paga entera quien las tiene y solo bajan lo que le queda; con ellas, el % total de cada uno ya no es igual.
   - Valorar mostrar también el % del gasto que paga cada uno (el peso), además del % de su sueldo. Con la regla de igualar lo que queda, explicar la suya.
-- [ ] **Botón informativo «i» en la barra de captura (2026-10-05):** que enseñe qué frases acepta hoy el asistente (gramática fija de `src/agent/parser.ts`, sin LLM), con ejemplos:
+- [x] **Botón informativo «i» en la barra de captura (2026-10-05; hecho 2026-10-11, E0-2, `CaptureInfoSheet`):** que enseñe qué frases acepta hoy el asistente (gramática fija de `src/agent/parser.ts`, sin LLM), con ejemplos:
   - `gasto <importe> [categoría] [comercio]`, p. ej. «gasto 12 comida», «gasto 12,50 € comida Mercadona»; sin categoría reconocida, pregunta cuál con botones;
   - `ingreso <importe> [descripción]`, p. ej. «ingreso 1200 nómina»;
   - solo euros; el gasto queda como individual de quien está activo, pagado por esa persona y con fecha de hoy.

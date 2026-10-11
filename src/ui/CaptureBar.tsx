@@ -9,6 +9,7 @@ import type { Intent, ParserContext } from '../agent/contracts.ts';
 import { parse, selectExpenseCategory } from '../agent/parser.ts';
 import { FORM, toErrors } from './errors.ts';
 import { useData, useMe, useWide } from './common.tsx';
+import { CaptureInfoSheet } from './CaptureInfoSheet.tsx';
 import { Icon } from './icons.tsx';
 import { t } from './i18n/index.ts';
 import { useServices } from './services-context.tsx';
@@ -50,6 +51,7 @@ export function CaptureBar() {
   const [notice, setNotice] = useState<string | null>(null);
   const [noticeUndoId, setNoticeUndoId] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const nextMessageId = useRef(0);
   const barRef = useRef<HTMLElement>(null);
 
@@ -268,7 +270,11 @@ export function CaptureBar() {
             {activeMembers.length === 0 ? t('assistant.manageMembers') : t('assistant.chooseMeLink')}
           </a>
         )}
+        <button type="button" className="icon-button" aria-label={t('assistant.infoLabel')} aria-haspopup="dialog" onClick={() => setInfoOpen(true)}>
+          <Icon name="info" />
+        </button>
       </p>
+      {infoOpen && <CaptureInfoSheet onClose={() => setInfoOpen(false)} />}
       <form className="capture-bar__form" onSubmit={(event) => void submit(event)} aria-busy={busy}>
         <div className="capture-bar__composer">
           <input
