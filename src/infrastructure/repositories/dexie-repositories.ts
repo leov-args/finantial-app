@@ -211,8 +211,8 @@ export class DexieSettingsRepository implements SettingsRepository {
     return row ? settingsFromRecord(row) : Object.freeze({ splitRule: DEFAULT_SPLIT_RULE });
   }
 
-  async saveHousehold(settings: HouseholdSettings): Promise<void> {
-    await this.db.settings.put(settingsToRecord(settings));
+  async saveHousehold(settings: HouseholdSettings, updatedAt: Timestamp): Promise<void> {
+    await this.db.settings.put(settingsToRecord(settings, updatedAt));
   }
 }
 

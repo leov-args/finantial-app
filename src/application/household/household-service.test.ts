@@ -1,5 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { asTimestamp } from '../../domain/shared/dates.ts';
 import { makeTestApp } from '../../test/test-app.ts';
+import { type TestHouseholdData, serializeTestHousehold } from '../../test/household-file.ts';
 
 type TestApp = ReturnType<typeof makeTestApp>;
 
@@ -18,6 +20,27 @@ afterEach(async () => {
 });
 
 const eur = (amountMinor: number) => ({ amountMinor, currency: 'EUR' });
+const old = asTimestamp('2026-10-01T10:00:00.000Z');
+const newer = asTimestamp('2026-10-02T10:00:00.000Z');
+
+function mergeData(overrides: Partial<TestHouseholdData> = {}): TestHouseholdData {
+  return {
+    members: [{ id: 'member-a', name: 'Ana', active: true, referenceIncome: null, color: 'blue', createdAt: old, updatedAt: old }],
+    categories: [{ id: 'category-a', name: 'Comida', archived: false, createdAt: old, updatedAt: old }],
+    incomes: [], expenses: [], planItems: [], settings: [], monthSnapshots: [], tombstones: [],
+    ...overrides,
+  };
+}
+
+function fileFor(data: TestHouseholdData): string {
+  return serializeTestHousehold(data);
+}
+
+function existingMember() {
+  const member = mergeData().members[0];
+  if (!member) throw new Error('Base member missing from test household.');
+  return member;
+}
 
 const sortByMonth = (rows: readonly { readonly month: string }[]) => [...rows].sort((a, b) => a.month.localeCompare(b.month));
 
@@ -94,6 +117,94 @@ describe('HouseholdService.exportFile', () => {
     expect(targetData.settings).toEqual(sourceData.settings);
     expect(sortByMonth(targetData.monthSnapshots)).toEqual(sortByMonth(sourceData.monthSnapshots));
     expect(targetData.tombstones).toEqual(sourceData.tombstones);
+  });
+});
+
+describe('HouseholdService.merge', () => {
+  it('previews counts, applies changes, and performs no writes when the same file is merged again', async () => {
+    const target = app();
+    await target.services.household.join(target.services.household.preview(fileFor(mergeData())).parsed);
+    const incoming = mergeData({
+      members: [
+        { ...existingMember(), name: 'Ana editada', updatedAt: newer },
+        { id: 'member-b', name: 'Pareja', active: true, referenceIncome: null, color: 'indigo', createdAt: old, updatedAt: newer },
+      ],
+      expenses: [{
+        id: 'expense-b', description: 'Compra', merchant: null, amountMinor: 1250, currency: 'EUR', date: '2026-10-02',
+        categoryId: 'category-a', expenseType: 'VARIABLE', scopeType: 'SHARED', ownerId: null, paidBy: 'member-b',
+        recurrence: null, notes: '', receiptId: null, createdAt: newer, updatedAt: newer,
+      }],
+    });
+    const parsed = target.services.household.preview(fileFor(incoming)).parsed;
+
+    expect(await target.services.household.previewMerge(parsed)).toEqual({ created: 2, updated: 1, deleted: 0, hasChanges: true });
+    expect(await target.services.household.merge(parsed)).toEqual({ created: 2, updated: 1, deleted: 0, hasChanges: true });
+    expect((await target.services.members.list()).map((member) => member.name)).toContain('Pareja');
+
+    const tables = target.db.dataTables;
+    const writeSpies = tables.flatMap((table) => [vi.spyOn(table, 'bulkPut'), vi.spyOn(table, 'bulkDelete')]);
+    const dataBeforeRepeat = await readData(target);
+    expect(await target.services.household.previewMerge(parsed)).toEqual({ created: 0, updated: 0, deleted: 0, hasChanges: false });
+    expect(await target.services.household.merge(parsed)).toEqual({ created: 0, updated: 0, deleted: 0, hasChanges: false });
+    expect(writeSpies.every((spy) => spy.mock.calls.length === 0)).toBe(true);
+    expect(await readData(target)).toEqual(dataBeforeRepeat);
+    writeSpies.forEach((spy) => spy.mockRestore());
+  });
+
+  it('rejects an unrelated household with a translated application reason and writes nothing', async () => {
+    const target = app();
+    await target.services.household.join(target.services.household.preview(fileFor(mergeData())).parsed);
+    const before = await readData(target);
+    const unrelated = mergeData({
+      members: [{ id: 'member-other', name: 'Otra casa', active: true, referenceIncome: null, color: 'blue', createdAt: old, updatedAt: old }],
+    });
+    const parsed = target.services.household.preview(fileFor(unrelated)).parsed;
+
+    await expect(target.services.household.previewMerge(parsed)).rejects.toMatchObject({ reason: 'HOUSEHOLD_UNRELATED' });
+    await expect(target.services.household.merge(parsed)).rejects.toMatchObject({ reason: 'HOUSEHOLD_UNRELATED' });
+    expect(await readData(target)).toEqual(before);
+  });
+
+  it('rolls back every table when a write fails after an earlier table was written', async () => {
+    const target = app();
+    await target.services.household.join(target.services.household.preview(fileFor(mergeData())).parsed);
+    const incoming = mergeData({
+      members: [
+        existingMember(),
+        { id: 'member-b', name: 'Pareja', active: true, referenceIncome: null, color: 'indigo', createdAt: old, updatedAt: newer },
+      ],
+      expenses: [{
+        id: 'expense-b', description: 'Compra', merchant: null, amountMinor: 1250, currency: 'EUR', date: '2026-10-02',
+        categoryId: 'category-a', expenseType: 'VARIABLE', scopeType: 'SHARED', ownerId: null, paidBy: 'member-b',
+        recurrence: null, notes: '', receiptId: null, createdAt: newer, updatedAt: newer,
+      }],
+    });
+    const parsed = target.services.household.preview(fileFor(incoming)).parsed;
+    const before = await readData(target);
+    const failure = vi.spyOn(target.db.expenses, 'bulkPut').mockRejectedValue(new Error('write failed'));
+
+    await expect(target.services.household.merge(parsed)).rejects.toThrow('write failed');
+    expect(await readData(target)).toEqual(before);
+    failure.mockRestore();
+  });
+
+  it('rejects broken references already present locally before merging or writing', async () => {
+    const target = app();
+    const local = mergeData({
+      expenses: [{
+        id: 'expense-a', description: 'Compra', merchant: null, amountMinor: 1250, currency: 'EUR', date: '2026-10-02',
+        categoryId: 'category-a', expenseType: 'VARIABLE', scopeType: 'SHARED', ownerId: null, paidBy: 'member-a',
+        recurrence: null, notes: '', receiptId: null, createdAt: old, updatedAt: old,
+      }],
+    });
+    await target.services.household.join(target.services.household.preview(fileFor(local)).parsed);
+    await target.db.members.delete('member-a');
+    const before = await readData(target);
+    const incoming = target.services.household.preview(fileFor(mergeData())).parsed;
+
+    await expect(target.services.household.previewMerge(incoming)).rejects.toMatchObject({ reason: 'HOUSEHOLD_INVALID_FILE' });
+    await expect(target.services.household.merge(incoming)).rejects.toMatchObject({ reason: 'HOUSEHOLD_INVALID_FILE' });
+    expect(await readData(target)).toEqual(before);
   });
 });
 

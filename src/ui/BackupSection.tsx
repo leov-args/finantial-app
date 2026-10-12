@@ -66,10 +66,11 @@ export function BackupSection({ onRestored }: { readonly onRestored: () => Promi
         <HouseholdPreview archive={archive}>
           <p className="backup-section__warning"><strong>{t('ui.backupReplaceWarning')}</strong></p>
           <p className="muted small">{t('ui.backupSendFirst')}</p>
+          <p className="muted small">{t('ui.backupMergeHint')}</p>
           <div className="actions">
             <button type="button" onClick={cancel} disabled={busy}>{t('common.cancel')}</button>
             <button type="button" className="danger" onClick={() => void restore()} disabled={busy}>
-              {t('ui.backupReplace')}
+              {t('ui.backupReplaceAction')}
             </button>
           </div>
         </HouseholdPreview>

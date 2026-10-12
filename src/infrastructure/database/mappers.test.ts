@@ -112,7 +112,8 @@ describe('mappers', () => {
   });
 
   it('rejects an unknown split rule', () => {
-    expect(settingsFromRecord({ id: 'household', splitRule: 'PROPORTIONAL' })).toEqual({ splitRule: 'PROPORTIONAL' });
-    expect(() => settingsFromRecord({ id: 'household', splitRule: 'RANDOM' })).toThrow(/split rule/);
+    expect(settingsFromRecord({ id: 'household', splitRule: 'PROPORTIONAL', updatedAt: '2026-10-02T10:00:00.000Z' })).toEqual({ splitRule: 'PROPORTIONAL' });
+    expect(() => settingsFromRecord({ id: 'household', splitRule: 'RANDOM', updatedAt: '2026-10-02T10:00:00.000Z' })).toThrow(/split rule/);
+    expect(() => settingsFromRecord({ id: 'household', splitRule: 'EQUAL_KEEP', updatedAt: 'not-a-time' })).toThrow(/timestamp/);
   });
 });

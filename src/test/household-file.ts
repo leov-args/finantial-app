@@ -1,4 +1,11 @@
 import { serializeHousehold } from '../infrastructure/backup/household-file.ts';
+import type { HouseholdFileData } from '../infrastructure/backup/household-file.ts';
+
+export type TestHouseholdData = HouseholdFileData;
+
+export function serializeTestHousehold(data: TestHouseholdData): string {
+  return serializeHousehold(data, new Date('2026-10-02T10:00:00.000Z'));
+}
 
 export function makeHouseholdFile(names: readonly string[]) {
   const timestamp = '2026-10-02T10:00:00.000Z';

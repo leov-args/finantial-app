@@ -152,7 +152,7 @@ export class PlanService {
     const settings: HouseholdSettings = Object.freeze({ splitRule });
     return this.ctx.tx.run(async () => {
       await freezePastMonths(this.ctx);
-      await this.ctx.settings.saveHousehold(settings);
+      await this.ctx.settings.saveHousehold(settings, toTimestamp(this.ctx.clock.now()));
       return settings;
     });
   }

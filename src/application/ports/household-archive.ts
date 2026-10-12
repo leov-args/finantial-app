@@ -19,7 +19,14 @@ export interface HouseholdArchiveReadResult {
   readonly parsed: ParsedHousehold;
 }
 
-export type HouseholdArchiveFailure = 'INVALID_FILE' | 'NEWER_DATABASE' | 'HOUSEHOLD_NOT_EMPTY';
+export type HouseholdArchiveFailure = 'INVALID_FILE' | 'NEWER_DATABASE' | 'HOUSEHOLD_NOT_EMPTY' | 'HOUSEHOLD_UNRELATED';
+
+export interface HouseholdMergeSummary {
+  readonly created: number;
+  readonly updated: number;
+  readonly deleted: number;
+  readonly hasChanges: boolean;
+}
 
 export class HouseholdArchiveError extends Error {
   constructor(readonly failure: HouseholdArchiveFailure) {
@@ -33,4 +40,6 @@ export interface HouseholdArchive {
   export(createdAt: Date): Promise<string>;
   replaceAll(parsed: ParsedHousehold): Promise<void>;
   restore(parsed: ParsedHousehold): Promise<void>;
+  planMerge(parsed: ParsedHousehold): Promise<HouseholdMergeSummary>;
+  merge(parsed: ParsedHousehold): Promise<HouseholdMergeSummary>;
 }

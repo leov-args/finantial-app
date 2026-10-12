@@ -34,6 +34,7 @@ const REASON: Record<ApplicationErrorReason, readonly [form: MessageKey, field?:
   HOUSEHOLD_INVALID_FILE: ['errors.householdInvalidFile'],
   HOUSEHOLD_NEWER_DATABASE: ['errors.householdNewerDatabase'],
   HOUSEHOLD_NOT_EMPTY: ['errors.householdNotEmpty'],
+  HOUSEHOLD_UNRELATED: ['errors.householdUnrelated'],
 };
 
 export function toErrors(e: unknown): Record<string, string> {

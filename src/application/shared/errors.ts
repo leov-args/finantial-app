@@ -18,7 +18,8 @@ export type ApplicationErrorReason =
   | 'RECORD_CHANGED'
   | 'HOUSEHOLD_INVALID_FILE'
   | 'HOUSEHOLD_NEWER_DATABASE'
-  | 'HOUSEHOLD_NOT_EMPTY';
+  | 'HOUSEHOLD_NOT_EMPTY'
+  | 'HOUSEHOLD_UNRELATED';
 
 type Params = Readonly<Record<string, string | number>>;
 

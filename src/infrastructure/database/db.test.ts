@@ -157,13 +157,44 @@ describe('migrations', () => {
     await v2.table('expenses').add(sampleExpense);
     v2.close();
 
-    const upgraded = track(new FamilyFinanceDb(name));
+    const upgraded = track(new Dexie(name));
+    applyMigrations(upgraded, MIGRATIONS.slice(0, 3));
     await upgraded.open();
 
     expect(upgraded.verno).toBe(3);
+    expect(await upgraded.table('expenses').get('exp-1')).toEqual(sampleExpense);
+    expect(await upgraded.table('monthSnapshots').count()).toBe(0);
+    expect(await upgraded.table('tombstones').count()).toBe(0);
+  });
+
+  it('v4 timestamps existing settings in a populated v3 database and preserves every table', async () => {
+    const name = uniqueName();
+    const v3 = track(new Dexie(name));
+    applyMigrations(v3, MIGRATIONS.slice(0, 3));
+    await v3.open();
+    await v3.table('members').add({
+      id: 'm-ana', name: 'Ana', active: true, referenceIncome: null, color: 'blue',
+      createdAt: sampleExpense.createdAt, updatedAt: sampleExpense.updatedAt,
+    });
+    await v3.table('categories').add({
+      id: 'cat-housing', name: 'Casa', archived: false, createdAt: sampleExpense.createdAt, updatedAt: sampleExpense.updatedAt,
+    });
+    await v3.table('expenses').add(sampleExpense);
+    await v3.table('settings').add({ id: 'household', splitRule: 'PROPORTIONAL' });
+    await v3.table('monthSnapshots').add({ month: '2026-09', splitRule: 'EQUAL_KEEP', members: [], planItems: [], createdAt: sampleExpense.createdAt });
+    await v3.table('tombstones').add({ table: 'incomes', id: 'old-income', deletedAt: sampleExpense.updatedAt });
+    v3.close();
+
+    const upgraded = track(new FamilyFinanceDb(name));
+    await upgraded.open();
+
+    expect(upgraded.verno).toBe(4);
+    expect(await upgraded.members.get('m-ana')).toMatchObject({ name: 'Ana' });
+    expect(await upgraded.categories.get('cat-housing')).toMatchObject({ name: 'Casa' });
     expect(await upgraded.expenses.get('exp-1')).toEqual(sampleExpense);
-    expect(await upgraded.monthSnapshots.count()).toBe(0);
-    expect(await upgraded.tombstones.count()).toBe(0);
+    expect(await upgraded.settings.get('household')).toEqual({ id: 'household', splitRule: 'PROPORTIONAL', updatedAt: '1970-01-01T00:00:00.000Z' });
+    expect(await upgraded.monthSnapshots.get('2026-09')).toMatchObject({ splitRule: 'EQUAL_KEEP' });
+    expect(await upgraded.tombstones.get(['incomes', 'old-income'])).toMatchObject({ deletedAt: sampleExpense.updatedAt });
   });
 
   it('aborts a failing upgrade and leaves the old data intact', async () => {
