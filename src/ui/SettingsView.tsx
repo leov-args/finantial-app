@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { type Member, MEMBER_COLORS } from '../domain/member/member.ts';
 import type { Money } from '../domain/money/money.ts';
-import { useData, useMe, storedMeId, amountText, readIncome, Field, FormError } from './common.tsx';
+import { useData, useMe, storedMeId, amountText, readIncome, Field, FormError, useLastSync, lastSyncLabel } from './common.tsx';
 import { CategoriesView, MembersView } from './NameListView.tsx';
 import { BackupSection } from './BackupSection.tsx';
 import { MergeSection } from './MergeSection.tsx';
@@ -23,6 +23,7 @@ export function SettingsView() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status | null>(null);
   const [ruleInfoOpen, setRuleInfoOpen] = useState(false);
+  const lastSync = useLastSync();
 
   if (error) return <p className="error" role="alert">{error}</p>;
   if (!data) return <p className="muted">{t('ui.loading')}</p>;
@@ -192,6 +193,7 @@ export function SettingsView() {
 
       <section className="panel settings-section sync-section" aria-labelledby="sync-title">
         <h3 id="sync-title">{t('ui.syncTitle')}</h3>
+        <p className="muted">{lastSyncLabel(services.clock, lastSync)}</p>
         <div className="sync-section__send">
           <h4>{t('ui.shareTitle')}</h4>
           <p className="muted">{t('ui.shareDescription')}</p>

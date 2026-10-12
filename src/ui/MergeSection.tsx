@@ -3,6 +3,7 @@ import type { HouseholdArchiveReadResult, HouseholdMergeSummary } from '../appli
 import { MAX_HOUSEHOLD_FILE_BYTES } from '../application/ports/household-archive.ts';
 import { FORM, toErrors } from './errors.ts';
 import { t } from './i18n/index.ts';
+import { recordLastSync } from './common.tsx';
 import { useServices } from './services-context.tsx';
 import { HouseholdPreview } from './HouseholdPreview.tsx';
 
@@ -35,7 +36,10 @@ export function MergeSection({ onMerged }: { readonly onMerged: () => Promise<vo
       if (pick !== latestPick.current) return;
       const archive = services.household.preview(text);
       const summary = await services.household.previewMerge(archive.parsed);
-      if (pick === latestPick.current) setPreview({ archive, summary, applied: false });
+      if (pick === latestPick.current) {
+        setPreview({ archive, summary, applied: false });
+        if (!summary.hasChanges) recordLastSync(services.clock);
+      }
     } catch (error) {
       if (pick === latestPick.current) setErrors(toErrors(error));
     }
@@ -48,6 +52,7 @@ export function MergeSection({ onMerged }: { readonly onMerged: () => Promise<vo
     try {
       const summary = await services.household.merge(preview.archive.parsed);
       setPreview({ ...preview, summary, applied: true });
+      recordLastSync(services.clock);
       await onMerged();
     } catch (error) {
       setErrors(toErrors(error));

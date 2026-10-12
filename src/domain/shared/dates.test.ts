@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addMonths, asIsoDate, defaultDateIn, asYearMonth, isIsoDate, monthRange, toLocalIsoDate, yearMonthOf } from './dates.ts';
+import { addMonths, asIsoDate, defaultDateIn, asYearMonth, diffInDays, isIsoDate, monthRange, toLocalIsoDate, yearMonthOf } from './dates.ts';
 
 describe('dates', () => {
   it('accepts only real calendar dates', () => {
@@ -33,5 +33,11 @@ describe('dates', () => {
 
   it('uses the local wall-clock date', () => {
     expect(toLocalIsoDate(new Date(2026, 9, 2, 23, 59))).toBe('2026-10-02');
+  });
+
+  it('computes whole-day differences between local dates', () => {
+    expect(diffInDays(asIsoDate('2026-10-01'), asIsoDate('2026-10-02'))).toBe(1);
+    expect(diffInDays(asIsoDate('2026-10-02'), asIsoDate('2026-10-01'))).toBe(-1);
+    expect(diffInDays(asIsoDate('2026-09-30'), asIsoDate('2026-10-02'))).toBe(2);
   });
 });

@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanupApps, eur, household, renderApp } from '../test/render-app.tsx';
 import { makeRestorableHouseholdFile } from '../test/household-file.ts';
+import { SYNC_STORAGE_KEY } from './common.tsx';
+import { toLocalIsoDate } from '../domain/shared/dates.ts';
 
 afterEach(cleanupApps);
 
@@ -443,6 +445,100 @@ describe('settings', () => {
       await user.click(await screen.findByRole('button', { name: 'Aplicar cambios' }));
 
       await waitFor(() => expect(localStorage.getItem('family-finance.me')).toBeNull());
+    });
+  });
+
+  describe('E2-5: sync status', () => {
+    const syncStatus = () => {
+      const text = screen.queryByText(/Aún no has sincronizado|Última sincronización/);
+      return text?.textContent ?? null;
+    };
+
+    it('AC-01: shows "Aún no has sincronizado" when there is no previous sync', async () => {
+      await renderApp({ route: 'ajustes', seed: household });
+      expect(await screen.findByText('Aún no has sincronizado')).toBeTruthy();
+    });
+
+    it('AC-02: marks the day as "hoy" after merging a file with changes', async () => {
+      const user = userEvent.setup();
+      const { app } = await renderApp({ route: 'ajustes', seed: async (app) => { await household(app); } });
+      const exported = await app.services.household.exportFile();
+      const payload = JSON.parse(exported.text) as { data: { members: Array<Record<string, unknown>> } };
+      payload.data.members.push({
+        id: 'member-merge-new', name: 'Nueva pareja', active: true, referenceIncome: null, color: 'purple',
+        createdAt: '2026-10-03T10:00:00.000Z', updatedAt: '2026-10-03T10:00:00.000Z',
+      });
+
+      await user.upload(await screen.findByLabelText('Abrir archivo de cambios'), new File([JSON.stringify(payload)], 'changes.json', { type: 'application/json' }));
+      await user.click(await screen.findByRole('button', { name: 'Aplicar cambios' }));
+      expect(await screen.findByText('Cambios aplicados')).toBeTruthy();
+      expect(await screen.findByText('Última sincronización: hoy')).toBeTruthy();
+    });
+
+    it('AC-03: marks the day as "hoy" after reading a file with no new changes', async () => {
+      const user = userEvent.setup();
+      const { app } = await renderApp({ route: 'ajustes', seed: household });
+      const exported = await app.services.household.exportFile();
+
+      await user.upload(await screen.findByLabelText('Abrir archivo de cambios'), new File([exported.text], 'current.json', { type: 'application/json' }));
+      expect(await screen.findByText('No hay cambios nuevos que aplicar.')).toBeTruthy();
+      expect(await screen.findByText('Última sincronización: hoy')).toBeTruthy();
+    });
+
+    it('AC-04: shows "ayer" for a stamp from the previous local day and "hace N días" for older stamps', async () => {
+      const today = new Date(`${toLocalIsoDate(new Date('2026-10-02T10:00:00.000Z'))}T10:00:00.000`);
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      localStorage.setItem(SYNC_STORAGE_KEY, yesterday.toISOString());
+      const { reload } = await renderApp({ route: 'ajustes', seed: household });
+      expect(await screen.findByText('Última sincronización: ayer')).toBeTruthy();
+
+      const fiveDaysAgo = new Date(today);
+      fiveDaysAgo.setDate(today.getDate() - 5);
+      localStorage.setItem(SYNC_STORAGE_KEY, fiveDaysAgo.toISOString());
+      reload();
+      expect(await screen.findByText('Última sincronización: hace 5 días')).toBeTruthy();
+    });
+
+    it('AC-05: send changes, restore backup and rejected files do not update the stamp', async () => {
+      const user = userEvent.setup();
+      const restoreShare = stubNavigatorShare();
+      const { app } = await renderApp({ route: 'ajustes', seed: household });
+
+      expect(await screen.findByText('Aún no has sincronizado')).toBeTruthy();
+
+      await user.click(await screen.findByRole('button', { name: 'Enviar cambios' }));
+      expect(await screen.findByText('Archivo enviado')).toBeTruthy();
+      expect(syncStatus()).toBe('Aún no has sincronizado');
+
+      const backup = makeRestorableHouseholdFile();
+      await user.upload(await screen.findByLabelText('Abrir copia de seguridad'), new File([backup], 'backup.json', { type: 'application/json' }));
+      await user.click(await screen.findByRole('button', { name: 'Restaurar copia (reemplaza todo)' }));
+      await waitFor(async () => expect((await app.services.members.list()).map((m) => m.name)).toContain('Hogar restaurado'));
+      expect(syncStatus()).toBe('Aún no has sincronizado');
+
+      await user.upload(await screen.findByLabelText('Abrir archivo de cambios'), new File(['{'], 'invalid.json', { type: 'application/json' }));
+      expect(await screen.findByText('Archivo no válido o dañado (máx. 20 MB).')).toBeTruthy();
+      expect(syncStatus()).toBe('Aún no has sincronizado');
+
+      restoreShare();
+    });
+
+    it('AC-06: keeps Ajustes working when localStorage throws', async () => {
+      const user = userEvent.setup();
+      const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('denied'); });
+      const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('denied'); });
+      const { app } = await renderApp({ route: 'ajustes', seed: household });
+
+      expect(await screen.findByText('Aún no has sincronizado')).toBeTruthy();
+
+      const exported = await app.services.household.exportFile();
+      await user.upload(await screen.findByLabelText('Abrir archivo de cambios'), new File([exported.text], 'current.json', { type: 'application/json' }));
+      expect(await screen.findByText('No hay cambios nuevos que aplicar.')).toBeTruthy();
+      expect(syncStatus()).toBe('Aún no has sincronizado');
+
+      getItem.mockRestore();
+      setItem.mockRestore();
     });
   });
 });

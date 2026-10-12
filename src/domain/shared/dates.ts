@@ -70,6 +70,15 @@ export function yearMonthOf(date: IsoDate): YearMonth {
   return date.slice(0, 7) as YearMonth;
 }
 
+/** Whole-day difference `to - from` based on local calendar dates. */
+export function diffInDays(from: IsoDate, to: IsoDate): number {
+  const parse = (date: IsoDate) => {
+    const [y, m, d] = date.split('-').map(Number) as [number, number, number];
+    return Date.UTC(y, m - 1, d);
+  };
+  return Math.floor((parse(to) - parse(from)) / 86_400_000);
+}
+
 /** The month `n` months after (or before, if negative) `month`. */
 export function addMonths(month: YearMonth, n: number): YearMonth {
   const index = Number(month.slice(0, 4)) * 12 + Number(month.slice(5, 7)) - 1 + n;
