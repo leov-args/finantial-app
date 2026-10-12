@@ -96,6 +96,7 @@ export interface MonthSnapshotRecord {
 export interface SettingsRecord {
   id: 'household';
   splitRule: string;
+  updatedAt: string;
 }
 
 export type TombstoneRecord = Tombstone;

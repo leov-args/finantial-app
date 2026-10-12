@@ -55,3 +55,15 @@ Files with `dbVersion` 1 or 2 remain importable; missing tables, including tombs
 Joining a household during first use still requires an empty database (the default seeded categories are allowed). In Ajustes, **Copia de seguridad** can instead preview a valid file and replace all data on the device after explicit confirmation. The warning recommends sending the current data first. Cancel and invalid files do not write anything. Restore clears every data table, including seeded categories, month snapshots, and tombstones, then writes the file in one IndexedDB read-write transaction. A failed write rolls the transaction back. Restore does not merge households. The device's “who am I” preference remains only when its member id is active in the restored household; otherwise it is cleared.
 
 The existing “Send changes” action exports the backup file. There is no separate export action. The file summary shown before joining or restoring is unchanged: member names, expense/income/plan counts, and the date range.
+
+## E2-4 current format and merge behavior
+
+The application now writes household files with `dbVersion: 4`. Settings records include `updatedAt`, an ISO UTC timestamp. Version 4 files must include it; settings rows in files with an older database version that omit it are imported with `1970-01-01T00:00:00.000Z`. The v4 database migration assigns that epoch to settings already stored on the device.
+
+In Ajustes, **Sincronizar con tu pareja** groups **Enviar cambios** and **Recibir cambios**. Receiving a file previews the number of new, updated, and locally deleted records before applying it. Apply recomputes the merge in a single transaction over every data table. Cancel, an invalid file, an unrelated household, or a failed transaction writes nothing. Applying the same file again is a no-op.
+
+Records with update timestamps use newest-wins; equal timestamps use stable tie-breaks, and tombstones carry deletions. A live member or category is retained when a surviving record still references it. Month snapshots are immutable: when both files contain the same month, the earlier snapshot is kept, with a canonical-data tie-break. Settings use their update timestamp and a stable split-rule tie-break.
+
+Both devices converge after exchanging their merged files, provided each merge succeeds. Merge rejects two non-empty households with no shared member id; use **Copia de seguridad** to replace the local data in that case. Restore remains a separate, explicitly destructive action.
+
+Merge trusts device clocks when comparing timestamps. A device with an incorrect clock can cause an edit to win or lose unfairly. Tombstones are retained indefinitely; this feature does not garbage-collect them.

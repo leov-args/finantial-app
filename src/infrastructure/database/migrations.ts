@@ -60,6 +60,25 @@ export const MIGRATIONS: readonly Migration[] = [
       tombstones: '[table+id], deletedAt',
     },
   },
+  {
+    version: 4,
+    description: 'Timestamped household settings for deterministic merging (E2-4).',
+    stores: {
+      members: 'id, active',
+      categories: 'id, archived',
+      incomes: 'id, date, memberId',
+      expenses: 'id, date, categoryId, paidBy, ownerId, receiptId, createdAt',
+      planItems: 'id',
+      settings: 'id',
+      monthSnapshots: 'month',
+      tombstones: '[table+id], deletedAt',
+    },
+    upgrade: async (tx) => {
+      await tx.table('settings').toCollection().modify((row: Record<string, unknown>) => {
+        row['updatedAt'] = '1970-01-01T00:00:00.000Z';
+      });
+    },
+  },
 ];
 
 export const CURRENT_DB_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;

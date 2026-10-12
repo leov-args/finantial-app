@@ -74,7 +74,7 @@ export interface MonthSnapshotRepository {
 export interface SettingsRepository {
   /** The stored settings, or the defaults when nothing was saved yet. */
   getHousehold(): Promise<HouseholdSettings>;
-  saveHousehold(settings: HouseholdSettings): Promise<void>;
+  saveHousehold(settings: HouseholdSettings, updatedAt: Timestamp): Promise<void>;
 }
 
 export interface TombstoneRepository {

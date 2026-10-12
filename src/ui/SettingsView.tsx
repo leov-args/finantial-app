@@ -4,6 +4,7 @@ import type { Money } from '../domain/money/money.ts';
 import { useData, useMe, storedMeId, amountText, readIncome, Field, FormError } from './common.tsx';
 import { CategoriesView, MembersView } from './NameListView.tsx';
 import { BackupSection } from './BackupSection.tsx';
+import { MergeSection } from './MergeSection.tsx';
 import { Icon } from './icons.tsx';
 import { RuleInfoSheet } from './RuleInfoSheet.tsx';
 import { shareFile } from './share-file.ts';
@@ -68,6 +69,13 @@ export function SettingsView() {
     const storedMe = storedMeId();
     const restoredMembers = await services.members.listActive();
     if (storedMe !== null && !restoredMembers.some((member) => member.id === storedMe)) setMe(null);
+    reload();
+  }
+
+  async function afterMerge() {
+    const storedMe = storedMeId();
+    const activeMembers = await services.members.listActive();
+    if (storedMe !== null && !activeMembers.some((member) => member.id === storedMe)) setMe(null);
     reload();
   }
 
@@ -182,16 +190,20 @@ export function SettingsView() {
         {feedback('rule')}
       </section>
 
-      <section className="panel settings-section">
-        <h3>{t('ui.shareTitle')}</h3>
-        <p className="muted">{t('ui.shareDescription')}</p>
-        <div className="actions">
-          <button type="button" className="primary" onClick={() => void sendChanges()}>
-            <Icon name="send" />
-            {t('ui.sendChanges')}
-          </button>
-          {feedback('share')}
+      <section className="panel settings-section sync-section" aria-labelledby="sync-title">
+        <h3 id="sync-title">{t('ui.syncTitle')}</h3>
+        <div className="sync-section__send">
+          <h4>{t('ui.shareTitle')}</h4>
+          <p className="muted">{t('ui.shareDescription')}</p>
+          <div className="actions">
+            <button type="button" className="primary" onClick={() => void sendChanges()}>
+              <Icon name="send" />
+              {t('ui.sendChanges')}
+            </button>
+            {feedback('share')}
+          </div>
         </div>
+        <MergeSection onMerged={afterMerge} />
       </section>
 
       <BackupSection onRestored={afterRestore} />

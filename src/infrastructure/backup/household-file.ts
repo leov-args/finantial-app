@@ -39,7 +39,7 @@ const snapshotRecordSchema = z.object({
   members: z.array(z.object({ id: stringSchema, active: booleanSchema, referenceIncome: moneyRecordSchema.nullable() }).strict()),
   planItems: z.array(planItemRecordSchema), createdAt: stringSchema,
 }).strict();
-const settingsRecordSchema = z.object({ id: z.literal('household'), splitRule: stringSchema }).strict();
+const settingsRecordSchema = z.object({ id: z.literal('household'), splitRule: stringSchema, updatedAt: stringSchema.optional() }).strict();
 const tombstoneRecordSchema = z.object({
   table: z.enum(['members', 'categories', 'incomes', 'expenses', 'planItems']), id: stringSchema, deletedAt: stringSchema,
 }).strict();
@@ -88,7 +88,7 @@ function uniqueById<T extends { readonly id: string }>(rows: readonly T[]): Set<
   return ids;
 }
 
-function validateData(data: HouseholdFileData): void {
+export function validateHouseholdData(data: HouseholdFileData): void {
   const memberIds = uniqueById(data.members);
   const categoryIds = uniqueById(data.categories);
   uniqueById(data.incomes);
@@ -114,7 +114,10 @@ function validateData(data: HouseholdFileData): void {
     planItemFromRecord(row);
     if (row.shares.some((share) => !memberIds.has(share.memberId))) throw new Error('Plan item refers to an unknown member.');
   });
-  data.settings.forEach(settingsFromRecord);
+  data.settings.forEach((row) => {
+    settingsFromRecord(row);
+    if (!isIsoUtcTimestamp(row.updatedAt)) throw new Error('Invalid household settings timestamp.');
+  });
   data.monthSnapshots.forEach((row) => {
     monthSnapshotFromRecord(row);
     if (snapshotMonths.has(row.month)) throw new Error('Duplicate month snapshot.');
@@ -158,6 +161,7 @@ export function serializeHousehold(data: HouseholdFileData, createdAt = new Date
 export function parseHouseholdFile(text: string): HouseholdArchiveReadResult {
   if (text.length > MAX_HOUSEHOLD_FILE_BYTES || new TextEncoder().encode(text).byteLength > MAX_HOUSEHOLD_FILE_BYTES) throw new HouseholdArchiveError('INVALID_FILE');
   let raw: unknown;
+  let normalizedData: HouseholdFileData;
   try {
     raw = JSON.parse(text);
   } catch {
@@ -178,15 +182,23 @@ export function parseHouseholdFile(text: string): HouseholdArchiveReadResult {
     throw new HouseholdArchiveError('INVALID_FILE');
   }
   try {
-    validateData(result.data.data as unknown as HouseholdFileData);
+    const data = result.data.data;
+    if (result.data.dbVersion >= 4 && data.settings.some((row) => !Object.hasOwn(row, 'updatedAt'))) {
+      throw new Error('Version 4 settings require an update timestamp.');
+    }
+    normalizedData = {
+      ...data,
+      settings: data.settings.map((row) => ({ ...row, updatedAt: row.updatedAt ?? '1970-01-01T00:00:00.000Z' })),
+    } as unknown as HouseholdFileData;
+    validateHouseholdData(normalizedData);
   } catch {
     throw new HouseholdArchiveError('INVALID_FILE');
   }
-  const { members, incomes, expenses, planItems } = result.data.data;
+  const { members, incomes, expenses, planItems } = normalizedData;
   const dates = [...incomes.map((row) => row.date), ...expenses.map((row) => row.date)].sort();
   const from = dates.at(0);
   const to = dates.at(-1);
-  const parsed = result.data.data as unknown as ParsedHousehold;
+  const parsed = normalizedData as unknown as ParsedHousehold;
   return {
     parsed,
     summary: {

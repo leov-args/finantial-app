@@ -193,10 +193,11 @@ export function planItemFromRecord(r: PlanItemRecord): PlanItem {
   });
 }
 
-export const settingsToRecord = (s: HouseholdSettings): SettingsRecord => ({ id: 'household', splitRule: s.splitRule });
+export const settingsToRecord = (s: HouseholdSettings, updatedAt: string): SettingsRecord => ({ id: 'household', splitRule: s.splitRule, updatedAt });
 
 export function settingsFromRecord(r: SettingsRecord): HouseholdSettings {
   if (!isSplitRule(r.splitRule)) throw new Error(`Corrupted settings: unknown split rule "${r.splitRule}".`);
+  asTimestamp(r.updatedAt);
   return Object.freeze({ splitRule: r.splitRule });
 }
 

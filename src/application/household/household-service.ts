@@ -1,5 +1,5 @@
 import { toLocalIsoDate } from '../../domain/shared/dates.ts';
-import type { HouseholdArchiveReadResult, ParsedHousehold } from '../ports/household-archive.ts';
+import type { HouseholdArchiveReadResult, HouseholdMergeSummary, ParsedHousehold } from '../ports/household-archive.ts';
 import { HouseholdArchiveError } from '../ports/household-archive.ts';
 import type { AppContext } from '../shared/context.ts';
 import { ApplicationError } from '../shared/errors.ts';
@@ -38,6 +38,22 @@ export class HouseholdService {
     }
   }
 
+  async previewMerge(parsed: ParsedHousehold): Promise<HouseholdMergeSummary> {
+    try {
+      return await this.ctx.householdArchive.planMerge(parsed);
+    } catch (error) {
+      throw this.toApplicationError(error);
+    }
+  }
+
+  async merge(parsed: ParsedHousehold): Promise<HouseholdMergeSummary> {
+    try {
+      return await this.ctx.householdArchive.merge(parsed);
+    } catch (error) {
+      throw this.toApplicationError(error);
+    }
+  }
+
   private toApplicationError(error: unknown): unknown {
     if (!(error instanceof HouseholdArchiveError)) return error;
     switch (error.failure) {
@@ -47,6 +63,8 @@ export class HouseholdService {
         return new ApplicationError('VALIDATION', 'Error.', [], { reason: 'HOUSEHOLD_NEWER_DATABASE' });
       case 'HOUSEHOLD_NOT_EMPTY':
         return new ApplicationError('CONFLICT', 'Error.', [], { reason: 'HOUSEHOLD_NOT_EMPTY' });
+      case 'HOUSEHOLD_UNRELATED':
+        return new ApplicationError('CONFLICT', 'Error.', [], { reason: 'HOUSEHOLD_UNRELATED' });
     }
   }
 }

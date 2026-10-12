@@ -52,7 +52,7 @@ describe('household file', () => {
       dbVersion: CURRENT_DB_VERSION,
       data,
     });
-    expect(CURRENT_DB_VERSION).toBe(3);
+    expect(CURRENT_DB_VERSION).toBe(4);
     expect(Object.keys((JSON.parse(text) as { data: Record<string, unknown> }).data)).toEqual(Object.keys(data));
     expect(parsed.summary).toEqual({
       memberNames: ['Ana'],
@@ -101,6 +101,15 @@ describe('household file', () => {
     const { tombstones, ...v3Data } = data;
     expect(tombstones).toEqual([]);
     expect(() => parseHouseholdFile(JSON.stringify(householdFile({ data: v3Data })))).toThrow(invalid);
+  });
+
+  it('fills missing settings timestamps in older files and requires them in v4 files', () => {
+    const oldSettings = [{ id: 'household', splitRule: 'PROPORTIONAL' }];
+    const v3 = parseHouseholdFile(JSON.stringify(householdFile({ dbVersion: 3, data: { ...data, settings: oldSettings } })));
+    expect(v3.parsed).toMatchObject({ settings: [{ ...oldSettings[0], updatedAt: '1970-01-01T00:00:00.000Z' }] });
+
+    expect(() => parseHouseholdFile(JSON.stringify(householdFile({ data: { ...data, settings: oldSettings } })))).toThrow(invalid);
+    expect(() => parseHouseholdFile(JSON.stringify(householdFile({ data: { ...data, settings: [{ ...oldSettings[0], updatedAt: 'not-a-time' }] } })))).toThrow(invalid);
   });
 
   it('round-trips tombstones from the household file', () => {
@@ -161,6 +170,9 @@ function rejectedFiles(): { name: string; file: ReturnType<typeof householdFile>
     { name: 'an income of an unknown member', file: withData({ incomes: [{ ...income, memberId: 'missing' }] }) },
     { name: 'a plan share of an unknown member', file: withData({ planItems: [line('l', [{ memberId: 'missing', amountMinor: 1000 }])] }) },
     { name: 'a snapshot share of a member missing from the snapshot', file: withData({ monthSnapshots: [snapshot('2026-09', [{ memberId: 'missing', amountMinor: 1000 }])] }) },
-    { name: 'more than one settings row', file: withData({ settings: [{ id: 'household', splitRule: 'PROPORTIONAL' }, { id: 'household', splitRule: 'EQUAL_KEEP' }] }) },
+    { name: 'more than one settings row', file: withData({ settings: [
+      { id: 'household', splitRule: 'PROPORTIONAL', updatedAt: member.updatedAt },
+      { id: 'household', splitRule: 'EQUAL_KEEP', updatedAt: member.updatedAt },
+    ] }) },
   ];
 }
