@@ -135,6 +135,30 @@ details[open] { display: grid; gap: 0.75rem; }
 .undo:not(:empty) { opacity: 1; transform: none; }
 .undo button { background: transparent; color: inherit; border-color: currentColor; }
 
+.update-notice {
+  position: fixed;
+  z-index: 7;
+  left: 1rem;
+  right: 1rem;
+  bottom: calc(1rem + 3.5rem + env(safe-area-inset-bottom, 0px));
+  max-width: 30rem;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: var(--radius);
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition: opacity 240ms var(--ease-out), transform 240ms var(--ease-out);
+}
+/* The notice node is always mounted, so a transition brings it in when it gets content. */
+.update-notice:not(:empty) { opacity: 1; transform: none; }
+.update-notice button { background: transparent; color: inherit; border-color: currentColor; }
+
 /* ── Redesign shell: Apple system materials ─────────────────────────── */
 html {
   -webkit-tap-highlight-color: transparent;
@@ -347,6 +371,7 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.5; }
   /* The undo notice floats above the capture bar instead of under it. */
   .undo:not(:empty) { z-index: 6; bottom: calc(var(--capture-bar-height, 6.75rem) + var(--tab-bar) + 1rem + env(safe-area-inset-bottom, 0px)); }
   .shell--onboarding .undo:not(:empty) { bottom: max(1rem, env(safe-area-inset-bottom, 0px)); }
+  .update-notice { bottom: calc(var(--capture-bar-height, 6.75rem) + var(--tab-bar) + 3.5rem + env(safe-area-inset-bottom, 0px)); }
   .capture-bar__options { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 0.25rem; }
   .capture-bar__options::-webkit-scrollbar { display: none; }
   .capture-bar__history[open] ol { max-height: 24dvh; }
@@ -378,7 +403,7 @@ input:disabled, select:disabled, textarea:disabled { opacity: 0.5; }
 @media (prefers-reduced-motion: reduce) {
   button:active { transform: none; opacity: 0.6; }
   .family-explanation summary .icon { transition: none; }
-  .undo, .capture-bar__notice, .capture-bar__clarification { transition-property: opacity; }
+  .undo, .update-notice, .capture-bar__notice, .capture-bar__clarification { transition-property: opacity; }
 }
 @media (prefers-reduced-transparency: reduce) {
   .primary-nav, .capture-bar { background: var(--surface); backdrop-filter: none; }

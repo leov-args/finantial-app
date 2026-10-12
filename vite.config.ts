@@ -1,4 +1,7 @@
 /// <reference types="vitest/config" />
+import { createHash } from 'node:crypto';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -51,8 +54,64 @@ const bundleBudget = (): Plugin => ({
   },
 });
 
+const SERVICE_WORKER_TEMPLATE = './src/pwa/sw.template.js';
+
+async function collectFiles(dir: string, prefix: string): Promise<string[]> {
+  const entries = await readdir(dir);
+  const files: string[] = [];
+  for (const entry of entries) {
+    if (entry.startsWith('.')) continue;
+    const full = path.join(dir, entry);
+    const relative = prefix ? `${prefix}/${entry}` : entry;
+    const info = await stat(full);
+    if (info.isDirectory()) {
+      files.push(...(await collectFiles(full, relative)));
+    } else {
+      files.push(relative);
+    }
+  }
+  return files;
+}
+
+async function hashFiles(root: string, files: string[]): Promise<string> {
+  const hash = createHash('sha256');
+  for (const file of files.toSorted()) {
+    hash.update(file);
+    hash.update('\0');
+    hash.update(await readFile(path.join(root, file)));
+  }
+  return hash.digest('hex').slice(0, 16);
+}
+
+/**
+ * Emits a hand-written service worker at the site root. The worker precaches
+ * every file in the build output (except itself) and a content hash of those
+ * files becomes the cache version. Written in closeBundle so the precache list
+ * can be derived from the final dist directory, including copied public files.
+ */
+const serviceWorker = (): Plugin => {
+  let outDir = 'dist';
+  return {
+    name: 'family-finance:service-worker',
+    apply: 'build',
+    config(config) {
+      outDir = config.build?.outDir ?? 'dist';
+    },
+    async closeBundle() {
+      const root = path.resolve(outDir);
+      const files = (await collectFiles(root, '')).filter((file) => file !== 'sw.js');
+      const version = await hashFiles(root, files);
+      const precache = JSON.stringify(files);
+      const template = await readFile(SERVICE_WORKER_TEMPLATE, 'utf8');
+      const source = template.replaceAll('__PRECACHE__', precache).replaceAll('__VERSION__', version);
+      await writeFile(path.join(root, 'sw.js'), source);
+      this.info(`Service worker ${version} precaches ${files.length} assets.`);
+    },
+  };
+};
+
 export default defineConfig({
-  plugins: [react(), contentSecurityPolicy(), bundleBudget()],
+  plugins: [react(), contentSecurityPolicy(), bundleBudget(), serviceWorker()],
   // Relative asset URLs: the build works under any subpath (GitHub Pages /<repo>/), ADR-021.
   base: './',
   build: {

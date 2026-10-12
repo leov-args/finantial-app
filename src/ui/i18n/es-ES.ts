@@ -264,6 +264,10 @@ export const esES = {
     infoDefaults: 'Solo euros. El gasto queda como tuyo, pagado por ti y con la fecha de hoy; el ingreso, como tuyo y de hoy.',
     infoClose: 'Entendido',
   },
+  pwa: {
+    updateAvailable: 'Hay una actualización lista.',
+    update: 'Actualizar',
+  },
   colors: {
     blue: 'Azul',
     indigo: 'Índigo',

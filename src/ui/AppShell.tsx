@@ -1,5 +1,6 @@
 import { useCallback, useState, useSyncExternalStore } from 'react';
 import { addMonths, toLocalIsoDate, yearMonthOf } from '../domain/shared/dates.ts';
+import { useServiceWorkerUpdate } from '../pwa/registration.ts';
 import type { PersistenceStatus } from '../storage/persistence.ts';
 import { monthLabel, useData } from './common.tsx';
 import { SettingsView } from './SettingsView.tsx';
@@ -10,6 +11,7 @@ import { Icon } from './icons.tsx';
 import { Onboarding, useSetupStep } from './Onboarding.tsx';
 import { useServices } from './services-context.tsx';
 import { t, type MessageKey } from './i18n/index.ts';
+import { UpdateNotice } from './UpdateNotice.tsx';
 
 const ROUTES = {
   personal: 'app.personal',
@@ -41,6 +43,7 @@ export function AppShell({ persistence }: { persistence: PersistenceStatus }) {
   const thisMonth = yearMonthOf(toLocalIsoDate(clock.now()));
   const [month, setMonth] = useState(thisMonth);
   const monthly = route === 'personal' || route === 'familiar';
+  const update = useServiceWorkerUpdate();
 
   const loadMembers = useCallback(() => members.list(), [members]);
   const household = useData(loadMembers);
@@ -110,6 +113,8 @@ export function AppShell({ persistence }: { persistence: PersistenceStatus }) {
         </p>
         <p>{PERSISTENCE_LABEL[persistence]()}</p>
       </footer>
+
+      <UpdateNotice waiting={update.waiting} />
     </div>
   );
 }
