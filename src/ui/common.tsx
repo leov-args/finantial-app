@@ -5,7 +5,7 @@ import { type BasisPoints, type Money, isNegative, parseMoney, toMajorString } f
 import { DEFAULT_CURRENCY } from '../domain/money/currency.ts';
 import type { MemberId } from '../domain/shared/ids.ts';
 import type { Member } from '../domain/member/member.ts';
-import type { IsoDate, YearMonth } from '../domain/shared/dates.ts';
+import { type Clock, type IsoDate, type YearMonth, diffInDays, toLocalIsoDate } from '../domain/shared/dates.ts';
 import { FORM, toErrors } from './errors.ts';
 import { getLocale, t } from './i18n/index.ts';
 
@@ -323,6 +323,63 @@ export function useMe(members: readonly Member[]): [MemberId | null, (id: Member
     window.dispatchEvent(new CustomEvent(ME_CHANGED_EVENT, { detail: { id } }));
   };
   return [selectedMe, setMe];
+}
+
+export const SYNC_STORAGE_KEY = 'family-finance.last-sync';
+const SYNC_CHANGED_EVENT = 'family-finance:last-sync-changed';
+
+/** Reads the last successful sync instant from device-only storage. */
+export function readLastSync(): Date | null {
+  try {
+    const value = localStorage.getItem(SYNC_STORAGE_KEY);
+    if (!value) return null;
+    const instant = new Date(value);
+    return Number.isNaN(instant.getTime()) ? null : instant;
+  } catch {
+    return null;
+  }
+}
+
+/** Stores a successful sync instant in device-only storage and notifies the current session. */
+export function recordLastSync(clock: Clock): void {
+  try {
+    localStorage.setItem(SYNC_STORAGE_KEY, clock.now().toISOString());
+  } catch {
+    // A private browsing policy may deny localStorage; the current session still works.
+  }
+  window.dispatchEvent(new CustomEvent(SYNC_CHANGED_EVENT));
+}
+
+/**
+ * Keeps a component in sync with `recordLastSync` writes, including those in the same
+ * session. Falls back to `null` when localStorage is unavailable.
+ */
+export function useLastSync(): Date | null {
+  const [lastSync, setLastSync] = useState<Date | null>(() => readLastSync());
+  useEffect(() => {
+    const onChanged = () => setLastSync(readLastSync());
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === SYNC_STORAGE_KEY || event.key === null) {
+        setLastSync(readLastSync());
+      }
+    };
+    window.addEventListener(SYNC_CHANGED_EVENT, onChanged);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(SYNC_CHANGED_EVENT, onChanged);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+  return lastSync;
+}
+
+/** Returns a user-facing label such as "hoy" or "hace 3 días" based on local calendar dates. */
+export function lastSyncLabel(clock: Clock, lastSync: Date | null): string {
+  if (!lastSync) return t('ui.syncStatusNever');
+  const days = Math.max(0, diffInDays(toLocalIsoDate(lastSync), toLocalIsoDate(clock.now())));
+  if (days === 0) return t('ui.syncStatusToday');
+  if (days === 1) return t('ui.syncStatusYesterday');
+  return t('ui.syncStatusDaysAgo', { count: days });
 }
 
 // Calendar strings are formatted in UTC so the user's timezone can't shift the day.
