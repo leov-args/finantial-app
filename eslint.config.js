@@ -101,4 +101,8 @@ export default tseslint.config(
     files: ['*.config.{js,ts}', 'eslint.config.js'],
     languageOptions: { globals: { ...globals.node } },
   },
+  {
+    files: ['src/pwa/sw.template.js'],
+    languageOptions: { globals: { ...globals.browser, ...globals.serviceworker, __PRECACHE__: 'readonly' } },
+  },
 );

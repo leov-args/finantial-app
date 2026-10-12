@@ -309,6 +309,9 @@ Círculo de 1.75rem con la inicial en mayúscula (0.8rem, 700) sobre `--member-c
 ### Undo notice
 Tostada fija en etiqueta invertida (`--text` de fondo, `--bg` de texto), 12px, máx. 30rem; entra con transición de opacidad y 0.5rem en 240ms.
 
+### Update notice
+Fixed status bar that appears when a new service worker is waiting. It shares the inverted-label treatment of the undo notice (`--text` background, `--bg` text), uses the same border radius, and enters with an opacity and translate transition. It stacks above the undo toast so the two never overlap. On mobile it clears the floating tab bar and capture bar via the same CSS custom properties; on desktop it sits a fixed distance above the undo notice. It respects `prefers-reduced-motion` by animating only opacity. The text and the "Actualizar" action come from `t()`.
+
 ## Do's and Don'ts
 
 ### Do:

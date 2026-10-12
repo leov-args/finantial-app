@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createApp } from './app/container.ts';
+import { registerServiceWorker } from './pwa/registration.ts';
 import { requestPersistentStorage } from './storage/persistence.ts';
 import { AppShell } from './ui/AppShell.tsx';
 import { ServicesProvider } from './ui/services-context.tsx';
@@ -19,3 +20,5 @@ createRoot(rootElement).render(
     </ServicesProvider>
   </StrictMode>,
 );
+
+void registerServiceWorker();
