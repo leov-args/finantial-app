@@ -57,3 +57,13 @@ Known limitation (document it): the rules trust device clocks; a phone with a wr
 ## Out of scope
 
 Tombstone garbage collection, per-field merging (the whole record wins), conflict UI, last-sync status (E2-5), receipts, clock-skew correction, merging from the first-use screen (join keeps replacing an empty database).
+
+## Closing notes (2026-10-12)
+
+Done. Review found one required defect, fixed in one round: settings-, snapshot- and tombstone-only changes were not counted, so Apply stayed disabled; the plan now exposes `hasChanges`, which gates the notice and the button. Also fixed: the unrelated-household guard counts tombstoned member ids, stronger convergence/idempotence tests (rescue, tombstones, settings), and small UI/import nits. The reviewer's fuzz run over 1,676 random household pairs found the merge symmetric, idempotent and free of dangling references.
+
+Informational leftovers (non-blocking):
+- A corrupt local database is reported as an invalid file; a distinct reason with its own `t()` key would be clearer.
+- Tombstones are never garbage-collected; they must outlive the slowest device's next sync.
+- The rules trust device clocks; a phone with a wrong clock can win or lose unfairly.
+- Not yet tried between two real phones.
