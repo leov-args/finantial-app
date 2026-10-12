@@ -5,6 +5,7 @@ All notable changes to Family Finance are listed here, newest first. Roadmap ids
 ## Unreleased
 
 ### Added
+- **Sync status** (E2-5): Ajustes shows «Última sincronización: hoy / ayer / hace N días». The stamp is device-only and set when a received file is merged or has nothing new; sending changes and restoring do not count.
 - **Receive changes** (E2-4): Ajustes can merge a household file received from another device. The newest `updatedAt` wins per record, deletions are applied, the preview shows «N nuevos, M actualizados, K borrados» before anything is written, and applying is one atomic transaction. Merging is idempotent and convergent (A←B and B←A leave both devices identical). A file from an unrelated household is rejected and points to restore.
 - **Backup and restore** (E1-3): the household file carries tombstones, and Ajustes can restore a backup by replacing all data on the device after an explicit confirmation.
 - **Tombstones** (E1-2): every deletion is recorded in the same transaction as the delete, and undo removes it.
